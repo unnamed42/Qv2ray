@@ -48,6 +48,7 @@ void StreamSettingsWidget::SetStreamObject(const StreamSettingsObject &sso)
         enableSessionResumptionCB->setChecked(stream.prefix##Settings.enableSessionResumption);                                                      \
         disableSystemRoot->setChecked(stream.prefix##Settings.disableSystemRoot);                                                                    \
         alpnTxt->setText(stream.prefix##Settings.alpn.join("|"));                                                                                    \
+        fingerprintCB->setCurrentText(stream.prefix##Settings.fingerprint);                                                                          \
     }
 
         tls_xtls_process(tls);
@@ -297,6 +298,12 @@ void StreamSettingsWidget::on_serverNameTxt_textEdited(const QString &arg1)
 {
     stream.tlsSettings.serverName = arg1.trimmed();
     stream.xtlsSettings.serverName = arg1.trimmed();
+}
+
+void StreamSettingsWidget::on_fingerprintCB_currentIndexChanged(int arg1)
+{
+    stream.tlsSettings.fingerprint = fingerprintCB->itemText(arg1);
+    stream.xtlsSettings.fingerprint = fingerprintCB->itemText(arg1);
 }
 
 void StreamSettingsWidget::on_allowInsecureCB_stateChanged(int arg1)

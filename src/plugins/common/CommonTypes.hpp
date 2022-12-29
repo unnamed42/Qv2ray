@@ -50,7 +50,7 @@ struct ShadowSocksServerObject
     QString password;
     int port = 0;
     JSONSTRUCT_COMPARE(ShadowSocksServerObject, address, method, password)
-    JSONSTRUCT_REGISTER(ShadowSocksServerObject, A(method), F(address, port, password))
+    JSONSTRUCT_REGISTER(ShadowSocksServerObject, QJSON_A(method), F(address, port, password))
 };
 
 //
@@ -63,7 +63,7 @@ struct VLESSServerObject
         QString encryption = "none";
         QString flow;
         JSONSTRUCT_COMPARE(UserObject, id, encryption, flow)
-        JSONSTRUCT_REGISTER(UserObject, A(encryption), F(id, flow))
+        JSONSTRUCT_REGISTER(UserObject, QJSON_A(encryption), F(id, flow))
     };
 
     QString address;

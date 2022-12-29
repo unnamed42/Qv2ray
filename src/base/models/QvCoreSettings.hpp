@@ -26,7 +26,7 @@ namespace Qv2ray::base::config
         QvConfig_Route(const QvRouteConfig_Impl &_domains, const QvRouteConfig_Impl &_ips, const QString &ds)
             : domainStrategy(ds), domains(_domains), ips(_ips){};
         JSONSTRUCT_COMPARE(QvConfig_Route, domainStrategy, domainMatcher, domains, ips)
-        JSONSTRUCT_REGISTER(QvConfig_Route, A(domainStrategy, domainMatcher, domains, ips))
+        JSONSTRUCT_REGISTER(QvConfig_Route, QJSON_A(domainStrategy, domainMatcher, domains, ips))
     };
 
     using QvConfig_DNS = objects::DNSObject;
@@ -150,7 +150,7 @@ namespace Qv2ray::base::config
         JSONSTRUCT_COMPARE(QvConfig_Inbounds, listenip, useSocks, useHTTP, useTPROXY, tProxySettings, httpSettings, socksSettings,
                            systemProxySettings, browserForwarderSettings);
         JSONSTRUCT_REGISTER(QvConfig_Inbounds,                         //
-                            A(socksSettings),                          //
+                            QJSON_A(socksSettings),                          //
                             F(listenip, useSocks, useHTTP, useTPROXY), //
                             F(tProxySettings, httpSettings, systemProxySettings, browserForwarderSettings));
     };

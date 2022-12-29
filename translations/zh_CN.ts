@@ -364,7 +364,7 @@
       <translation>解析 IP</translation>
     </message>
     <message>
-      <source>The current system&apos;s IP address is used to notify the server of the client&apos;s location when querying DNS. 
+      <source>The current system&apos;s IP address is used to notify the server of the client&apos;s location when querying DNS.
 
 It cannot be a private address.</source>
       <translation>当前系统的 IP 地址。用作在查询 DNS 时提示服务器客户端所在的位置。
@@ -3171,6 +3171,10 @@ Maybe you have downloaded the wrong core?</source>
     <message>
       <source>Allow Insecure Certificates</source>
       <translation>允许不安全的证书</translation>
+    </message>
+    <message>
+        <source>Fingerprint</source>
+        <translation>uTLS 指纹</translation>
     </message>
     <message>
       <source>ALPN</source>

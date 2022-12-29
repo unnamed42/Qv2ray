@@ -17,7 +17,7 @@
    <item row="0" column="0">
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="tab_3">
       <attribute name="title">
@@ -879,20 +879,7 @@
          </item>
         </widget>
        </item>
-       <item row="1" column="0" colspan="2">
-        <widget class="QCheckBox" name="allowInsecureCB">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="toolTip">
-          <string>AllowInsecure is insecure, do not allow insecure.</string>
-         </property>
-         <property name="text">
-          <string>Allow Insecure Certificates</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="0" colspan="2">
+       <item row="3" column="0" colspan="2">
         <widget class="QCheckBox" name="enableSessionResumptionCB">
          <property name="text">
           <string>Enable Session Resumption</string>
@@ -902,41 +889,41 @@
          </property>
         </widget>
        </item>
-       <item row="3" column="0" colspan="2">
+       <item row="4" column="0" colspan="2">
         <widget class="QCheckBox" name="disableSystemRoot">
          <property name="text">
           <string>Disable System Root Certificates</string>
          </property>
         </widget>
        </item>
-       <item row="4" column="0">
+       <item row="5" column="0">
         <widget class="QLabel" name="label_6">
          <property name="text">
           <string>Server Address (SNI)</string>
          </property>
         </widget>
        </item>
-       <item row="4" column="1">
+       <item row="5" column="1">
         <widget class="QLineEdit" name="serverNameTxt"/>
        </item>
-       <item row="5" column="0">
+       <item row="6" column="0">
         <widget class="QLabel" name="label_14">
          <property name="text">
           <string>ALPN</string>
          </property>
         </widget>
        </item>
-       <item row="5" column="1">
+       <item row="6" column="1">
         <widget class="QLineEdit" name="alpnTxt"/>
        </item>
-       <item row="6" column="0">
+       <item row="7" column="0">
         <widget class="QLabel" name="label_9">
          <property name="text">
           <string>Certificates</string>
          </property>
         </widget>
        </item>
-       <item row="6" column="1">
+       <item row="7" column="1">
         <widget class="QPushButton" name="openCertEditorBtn">
          <property name="enabled">
           <bool>false</bool>
@@ -949,11 +936,60 @@
          </property>
         </widget>
        </item>
-       <item row="7" column="0" colspan="2">
+       <item row="8" column="0" colspan="2">
         <widget class="QPushButton" name="pinnedPeerCertificateChainSha256Btn">
          <property name="text">
           <string>Open pinnedPeerCertificateChainSha256 Editor</string>
          </property>
+        </widget>
+       </item>
+       <item row="2" column="0" colspan="2">
+        <widget class="QCheckBox" name="allowInsecureCB">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="toolTip">
+          <string>AllowInsecure is insecure, do not allow insecure.</string>
+         </property>
+         <property name="text">
+          <string>Allow Insecure Certificates</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="label_34">
+         <property name="text">
+          <string>Fingerprint</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QComboBox" name="fingerprintCB">
+         <item>
+          <property name="text">
+           <string/>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>chrome</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>firefox</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>safari</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>randomized</string>
+          </property>
+         </item>
         </widget>
        </item>
       </layout>

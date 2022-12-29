@@ -366,7 +366,7 @@
       <translation>解析IP</translation>
     </message>
     <message>
-      <source>The current system&apos;s IP address is used to notify the server of the client&apos;s location when querying DNS. 
+      <source>The current system&apos;s IP address is used to notify the server of the client&apos;s location when querying DNS.
 
 It cannot be a private address.</source>
       <translation>當前係統嘅IP地阯用於喺查詢DNS時通知服務器客户端嘅位置。
@@ -2946,7 +2946,7 @@ Maybe you have downloaded the wrong core?</translation>
     <message>
       <source>Import scheme &apos;%1&apos; made by &apos;%2&apos;? <byte value="xd"/>
  Description: %3</source>
-      <translation type="unfinished">Import scheme &apos;%1&apos; made by &apos;%2&apos;? 
+      <translation type="unfinished">Import scheme &apos;%1&apos; made by &apos;%2&apos;?
  Description: %3</translation>
     </message>
     <message>
@@ -3188,6 +3188,10 @@ Maybe you have downloaded the wrong core?</translation>
     <message>
       <source>Allow Insecure Certificates</source>
       <translation type="unfinished">Allow Insecure Certificates</translation>
+    </message>
+    <message>
+        <source>Fingerprint</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
       <source>ALPN</source>

@@ -359,12 +359,6 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>The current system&apos;s IP address is used to notify the server of the client&apos;s location when querying DNS. 
-
-It cannot be a private address.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>(V2Ray 4.13+) The query traffic sent by this DNS, except for localhost and DOHL modes, will carry this identifier, which can be matched with inboundTag in the route.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -399,6 +393,12 @@ This entry is ignored by V2Ray core when using DoH servers.</source>
     </message>
     <message>
         <source>Fake DNS Pool Size</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The current system&apos;s IP address is used to notify the server of the client&apos;s location when querying DNS. 
+
+It cannot be a private address.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -3152,6 +3152,10 @@ Maybe you have downloaded the wrong core?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Fingerprint</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>ALPN</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3269,6 +3273,22 @@ Maybe you have downloaded the wrong core?</source>
     </message>
     <message>
         <source>TCP Keepalive Interval</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>chrome</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>firefox</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>safari</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>randomized</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

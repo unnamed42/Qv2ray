@@ -364,7 +364,7 @@
       <translation>解決済みIP</translation>
     </message>
     <message>
-      <source>The current system&apos;s IP address is used to notify the server of the client&apos;s location when querying DNS. 
+      <source>The current system&apos;s IP address is used to notify the server of the client&apos;s location when querying DNS.
 
 It cannot be a private address.</source>
       <translation>DNS照会時にクライアントの位置をサーバに通知するために使用される現在のシステムのIPアドレス。
@@ -3171,6 +3171,10 @@ Maybe you have downloaded the wrong core?</source>
     <message>
       <source>Allow Insecure Certificates</source>
       <translation>安全でない証明書を許可する</translation>
+    </message>
+    <message>
+        <source>Fingerprint</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
       <source>ALPN</source>

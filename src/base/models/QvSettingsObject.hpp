@@ -210,8 +210,8 @@ namespace Qv2ray::base::config
         JSONSTRUCT_COMPARE(Qv2rayConfigObject, config_version, logLevel, autoStartId, lastConnectedId, autoStartBehavior, uiConfig, pluginConfig,
                            kernelConfig, updateConfig, networkConfig, inboundConfig, outboundConfig, advancedConfig, defaultRouteConfig)
         JSONSTRUCT_REGISTER_NOCOPYMOVE(Qv2rayConfigObject,                                                                   //
-                                       A(config_version, autoStartId, lastConnectedId, autoStartBehavior, logLevel),         //
-                                       A(uiConfig, advancedConfig, pluginConfig, updateConfig, kernelConfig, networkConfig), //
-                                       A(inboundConfig, outboundConfig, defaultRouteConfig))
+                                       QJSON_A(config_version, autoStartId, lastConnectedId, autoStartBehavior, logLevel),         //
+                                       QJSON_A(uiConfig, advancedConfig, pluginConfig, updateConfig, kernelConfig, networkConfig), //
+                                       QJSON_A(inboundConfig, outboundConfig, defaultRouteConfig))
     };
 } // namespace Qv2ray::base::config

@@ -120,8 +120,8 @@ namespace Qv2ray::base::objects
                            QV2RAY_RULE_ENABLED, QV2RAY_RULE_TAG,       //
                            domain, ip, port, sourcePort, network, source, inboundTag, protocol, attrs)
         JSONSTRUCT_REGISTER(RuleObject,                              //
-                            A(type, outboundTag, balancerTag),       //
-                            A(QV2RAY_RULE_ENABLED, QV2RAY_RULE_TAG), //
+                            QJSON_A(type, outboundTag, balancerTag),       //
+                            QJSON_A(QV2RAY_RULE_ENABLED, QV2RAY_RULE_TAG), //
                             F(domain, ip, port, sourcePort, network, source, inboundTag, protocol, attrs))
     };
     //
@@ -193,7 +193,7 @@ namespace Qv2ray::base::objects
             HTTPRequestObject request;
             HTTPResponseObject response;
             JSONSTRUCT_COMPARE(TCPHeader_Internal, type, request, response)
-            JSONSTRUCT_REGISTER(TCPHeader_Internal, A(type), F(request, response))
+            JSONSTRUCT_REGISTER(TCPHeader_Internal, QJSON_A(type), F(request, response))
         };
         //
         //
@@ -313,10 +313,11 @@ namespace Qv2ray::base::objects
             QList<QString> alpn;
             QList<QString> pinnedPeerCertificateChainSha256;
             QList<CertificateObject> certificates;
+            QString fingerprint;
             JSONSTRUCT_COMPARE(TLSObject, serverName, allowInsecure, enableSessionResumption, disableSystemRoot, alpn,
-                               pinnedPeerCertificateChainSha256, certificates)
+                               pinnedPeerCertificateChainSha256, certificates, fingerprint)
             JSONSTRUCT_REGISTER(TLSObject, F(serverName, allowInsecure, enableSessionResumption, disableSystemRoot, alpn,
-                                             pinnedPeerCertificateChainSha256, certificates))
+                                             pinnedPeerCertificateChainSha256, certificates, fingerprint))
         };
         //
         //
@@ -328,8 +329,9 @@ namespace Qv2ray::base::objects
             bool disableSystemRoot = false;
             QList<QString> alpn;
             QList<CertificateObject> certificates;
-            JSONSTRUCT_COMPARE(XTLSObject, serverName, allowInsecure, enableSessionResumption, disableSystemRoot, alpn, certificates)
-            JSONSTRUCT_REGISTER(XTLSObject, F(serverName, allowInsecure, enableSessionResumption, disableSystemRoot, alpn, certificates))
+            QString fingerprint;
+            JSONSTRUCT_COMPARE(XTLSObject, serverName, allowInsecure, enableSessionResumption, disableSystemRoot, alpn, certificates, fingerprint)
+            JSONSTRUCT_REGISTER(XTLSObject, F(serverName, allowInsecure, enableSessionResumption, disableSystemRoot, alpn, certificates, fingerprint))
         };
     } // namespace transfer
     //
@@ -358,7 +360,7 @@ namespace Qv2ray::base::objects
     {
         QString ipPool = "198.18.0.0/15";
         int poolSize = 65535;
-        JSONSTRUCT_REGISTER(FakeDNSObject, A(ipPool, poolSize))
+        JSONSTRUCT_REGISTER(FakeDNSObject, QJSON_A(ipPool, poolSize))
         JSONSTRUCT_COMPARE(FakeDNSObject, ipPool, poolSize)
     };
 

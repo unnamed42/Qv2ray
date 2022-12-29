@@ -1,5 +1,6 @@
 find_program(GRPC_CPP_PLUGIN grpc_cpp_plugin)
 
+find_package(absl CONFIG REQUIRED)
 find_package(gRPC CONFIG QUIET)
 
 # Debian, for example, cannot find gRPC in a proper way.
@@ -20,7 +21,9 @@ if(NOT gRPC_FOUND)
         endif()
     endif()
 else()
-    set(QV2RAY_BACKEND_LIBRARY gRPC::gpr gRPC::grpc gRPC::grpc++ gRPC::grpc++_alts)
+    set(QV2RAY_BACKEND_LIBRARY gRPC::gpr gRPC::grpc gRPC::grpc++ gRPC::grpc++_alts
+        -labsl_log_internal_check_op
+        -labsl_log_internal_message)
 endif()
 
 set(API_PROTO "${CMAKE_SOURCE_DIR}/assets/v2ray_api.proto")
