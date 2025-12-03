@@ -330,7 +330,7 @@ namespace Qv2ray::components::proxy
                 // for KDE:
                 if (isKDE)
                 {
-                    actions << ProcessArgument{ "kwriteconfig5",
+                    actions << ProcessArgument{ "kwriteconfig6",
                                                 { "--file", configPath + "/kioslaverc", //
                                                   "--group", "Proxy Settings",          //
                                                   "--key", protocol + "Proxy",          //
@@ -350,7 +350,7 @@ namespace Qv2ray::components::proxy
                 // for KDE:
                 if (isKDE)
                 {
-                    actions << ProcessArgument{ "kwriteconfig5",
+                    actions << ProcessArgument{ "kwriteconfig6",
                                                 { "--file", configPath + "/kioslaverc", //
                                                   "--group", "Proxy Settings",          //
                                                   "--key", "socksProxy",                //
@@ -368,7 +368,7 @@ namespace Qv2ray::components::proxy
             // for KDE:
             if (isKDE)
             {
-                actions << ProcessArgument{ "kwriteconfig5",
+                actions << ProcessArgument{ "kwriteconfig6",
                                             { "--file", configPath + "/kioslaverc", //
                                               "--group", "Proxy Settings",          //
                                               "--key", "ProxyType", "1" } };
@@ -457,7 +457,7 @@ namespace Qv2ray::components::proxy
             // for KDE:
             if (isKDE)
             {
-                actions << ProcessArgument{ "kwriteconfig5",
+                actions << ProcessArgument{ "kwriteconfig6",
                                             { "--file", configRoot + "/kioslaverc", //
                                               "--group", "Proxy Settings",          //
                                               "--key", "ProxyType", "0" } };
