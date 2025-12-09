@@ -485,7 +485,7 @@ namespace Qv2ray::core::handler
         CheckValidId(id, nothing);
         if (!groups[id].isSubscription)
             return;
-        NetworkRequestHelper::AsyncHttpGet(groups[id].subscriptionOption.address, [=](const QByteArray &d) {
+        NetworkRequestHelper::AsyncHttpGet(groups[id].subscriptionOption.address, [=, this](const QByteArray &d) {
             p_CHUpdateSubscription(id, d);
             emit OnSubscriptionAsyncUpdateFinished(id);
         });

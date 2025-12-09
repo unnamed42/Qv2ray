@@ -36,10 +36,12 @@ class MainWindow
   private:
     QvMessageBusSlotDecl;
   private slots:
+    // these two can't get auto connected, so don't follow qt naming convention
+    void onTraySetBypassCNBtnClicked();
+    void onClearBypassCNBtnClicked();
+
     void on_activatedTray(QSystemTrayIcon::ActivationReason reason);
     void on_preferencesBtn_clicked();
-    void on_setBypassCNBtn_clicked();
-    void on_clearBypassCNBtn_clicked();
     void on_clearlogButton_clicked();
     void on_connectionTreeView_customContextMenuRequested(const QPoint &pos);
     void on_importConfigButton_clicked();

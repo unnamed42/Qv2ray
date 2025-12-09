@@ -130,10 +130,11 @@ option(QV2RAY_HAS_SINGLEAPPLICATION "Build With SingleApplication" ON)
 set(QV2RAY_UI_TYPE "QWidget" CACHE STRING "Qv2ray GUI Component")
 QVLOG(QV2RAY_UI_TYPE)
 
-option(QV2RAY_USE_V5_CORE "Use V5 Core" ON)
+option(QV2RAY_USE_V5_CORE "Use V5 Core" OFF)
 QVLOG(QV2RAY_USE_V5_CORE)
 
-option(QV2RAY_QT6 "Use Qt6" OFF)
+option(QV2RAY_QT6 "Use Qt6" ON)
+add_compile_definitions(QT_DISABLE_DEPRECATED_BEFORE=0x050F00)
 
 if(QV2RAY_UI_TYPE STREQUAL "QWidget")
     set(QV2RAY_USE_QWIDGET ON)

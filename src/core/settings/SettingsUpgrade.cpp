@@ -134,7 +134,7 @@ namespace Qv2ray
                         auto newFilePath = newDirPath + "/" + subsConnectionId + QV2RAY_CONFIG_FILE_EXTENSION;
                         //
                         QJsonObject subsConnection;
-                        subsConnection["displayName"] = fileName.chopped(QString(QV2RAY_CONFIG_FILE_EXTENSION).count());
+                        subsConnection["displayName"] = fileName.chopped(QString(QV2RAY_CONFIG_FILE_EXTENSION).size());
                         QFile(baseFilePath).rename(newFilePath);
                         UPGRADELOG("Moved subscription file from: " + baseFilePath + " to: " + newFilePath);
                         subsConnectionIds << subsConnectionId;

@@ -185,8 +185,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), QvStateObject("Ma
     connect(tray_action_Stop, &QAction::triggered, ConnectionManager, &QvConfigHandler::StopConnection);
     connect(tray_action_Restart, &QAction::triggered, ConnectionManager, &QvConfigHandler::RestartConnection);
     connect(tray_action_Quit, &QAction::triggered, this, &MainWindow::Action_Exit);
-    connect(tray_action_SetBypassCN, &QAction::triggered, this, &MainWindow::on_setBypassCNBtn_clicked);
-    connect(tray_action_ClearBypassCN, &QAction::triggered, this, &MainWindow::on_clearBypassCNBtn_clicked);
+    connect(tray_action_SetBypassCN, &QAction::triggered, this, &MainWindow::onTraySetBypassCNBtnClicked);
+    connect(tray_action_ClearBypassCN, &QAction::triggered, this, &MainWindow::onClearBypassCNBtnClicked);
     connect(tray_action_SetSystemProxy, &QAction::triggered, this, &MainWindow::MWSetSystemProxy);
     connect(tray_action_ClearSystemProxy, &QAction::triggered, this, &MainWindow::MWClearSystemProxy);
     connect(tray_ClearRecentConnectionsAction, &QAction::triggered, [this]() {
@@ -527,7 +527,7 @@ void MainWindow::on_preferencesBtn_clicked()
     PreferencesWindow{ this }.exec();
 }
 
-void MainWindow::on_setBypassCNBtn_clicked()
+void MainWindow::onTraySetBypassCNBtnClicked()
 {
     GlobalConfig.defaultRouteConfig.connectionConfig.bypassCN = true;
     SaveGlobalSettings();
@@ -538,7 +538,7 @@ void MainWindow::on_setBypassCNBtn_clicked()
     }
 }
 
-void MainWindow::on_clearBypassCNBtn_clicked()
+void MainWindow::onClearBypassCNBtnClicked()
 {
     GlobalConfig.defaultRouteConfig.connectionConfig.bypassCN = false;
     SaveGlobalSettings();
