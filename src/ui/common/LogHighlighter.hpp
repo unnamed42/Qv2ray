@@ -63,8 +63,14 @@ namespace Qv2ray::ui
       public:
         explicit SyntaxHighlighter(bool darkMode, QTextDocument *parent = nullptr);
 
+        void setDarkMode(bool darkMode);
+
       protected:
         void highlightBlock(const QString &text) override;
+
+      private:
+        void setupUi(bool darkMode);
+        void setupRule();
 
       private:
         struct HighlightingRule
