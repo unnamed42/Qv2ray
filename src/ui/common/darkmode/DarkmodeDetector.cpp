@@ -4,7 +4,8 @@
 
 #include <QApplication>
 #include <QStyle>
-#ifdef Q_OS_LINUX
+#if defined(Q_OS_LINUX) && __has_include(<QDBusInterface>)
+#include <QDBusInterface>
 #elif defined(Q_OS_WIN32)
 #include <QSettings>
 #elif defined(Q_OS_MAC)
@@ -35,6 +36,14 @@ namespace Qv2ray::components::darkmode
         }
 
         return isDark;
+#elif defined(Q_OS_LINUX) && __has_include(<QDBusInterface>)
+        // see https://flatpak.github.io/xdg-desktop-portal/docs/doc-org.freedesktop.portal.Settings.html
+        QDBusInterface xdg("org.freedesktop.portal.Desktop", "/org/freedesktop/portal/desktop", "org.freedesktop.portal.Settings");
+        auto reply = xdg.callWithArgumentList(QDBus::BlockWithGui, "ReadOne", { QString("org.freedesktop.appearance"), QString("color-scheme") });
+        if (reply.type() == QDBusMessage::ErrorMessage || reply.arguments().empty())
+            return false;
+        auto result = qvariant_cast<QDBusVariant>(reply.arguments().first());
+        return result.variant().toInt() == 1;
 #endif
 
         if (!qApp || !qApp->style())

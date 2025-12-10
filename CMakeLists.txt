@@ -264,8 +264,13 @@ include(3rdparty/QJsonStruct/QJsonStruct.cmake)
 # Qv2ray Base, Qt Libraries, Qv2ray GUI Libraries, libThreads
 # ==================================================================================
 find_package(Threads REQUIRED)
-find_package(${QV_QT_LIBNAME} ${QV_QT_MAJOR_VERSION}.${QV_QT_MINOR_VERSION} COMPONENTS Core Network REQUIRED)
+find_package(${QV_QT_LIBNAME} ${QV_QT_MAJOR_VERSION}.${QV_QT_MINOR_VERSION} COMPONENTS Core Network OPTIONAL_COMPONENTS DBus REQUIRED)
+find_package(${QV_CORO_NAME} REQUIRED COMPONENTS Core Network)
+
 list(APPEND QV2RAY_QT_LIBS ${QV_QT_LIBNAME}::Core ${QV_QT_LIBNAME}::Network)
+if(TARGET ${QV_QT_LIBNAME}::DBus)
+    list(APPEND QV2RAY_QT_LIBS ${QV_QT_LIBNAME}::DBus)
+endif()
 
 cmake_policy(SET CMP0071 NEW)
 set(CMAKE_AUTOMOC ON)
