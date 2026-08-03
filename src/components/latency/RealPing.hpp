@@ -1,35 +1,39 @@
 #pragma once
 #include "LatencyTest.hpp"
+#include "base/Qv2rayBase.hpp"
 
-#include <curl/curl.h>
-#include <memory>
-#include <unordered_map>
-#include <utility>
-namespace uvw
-{
-    class Loop;
-    class TimerHandle;
-} // namespace uvw
+#include <QObject>
+#include <functional>
+
+class QNetworkAccessManager;
+class QNetworkReply;
+
 namespace Qv2ray::components::latency::realping
 {
-    class RealPing : public std::enable_shared_from_this<RealPing>
+    /// Real (HTTP) latency test: performs a real HTTP request through the local
+    /// Qv2ray inbound proxy and measures the round-trip time.
+    ///
+    /// Uses Qt's QNetworkAccessManager instead of libcurl, so no external HTTP
+    /// library is required. Each request gets its own QNetworkAccessManager with a
+    /// "Connection: close" header, so every measurement is a fresh connection
+    /// through the proxy (matching the old curl-multi behaviour).
+    class RealPing : public QObject
     {
+        Q_OBJECT
       public:
-        RealPing(std::shared_ptr<uvw::Loop> loopin, LatencyTestRequest &req, LatencyTestHost *testHost);
-        ~RealPing();
+        RealPing(LatencyTestRequest &req, LatencyTestHost *testHost);
+        ~RealPing() override;
+        void setOnFinished(std::function<void()> f);
         void start();
-        void notifyTestHost();
-        void recordHanleTime(CURL *);
-        long getHandleTime(CURL *);
-        std::string getProxyAddress();
 
       private:
-        int successCount = 0;
+        void checkCompleted();
+
         LatencyTestRequest req;
         LatencyTestResult data;
         LatencyTestHost *testHost;
-        std::shared_ptr<uvw::Loop> loop;
-        std::shared_ptr<uvw::TimerHandle> timeout;
-        std::unordered_map<CURL *, std::chrono::system_clock::time_point> reqStartTime;
+        std::function<void()> onFinished;
+        int successCount = 0;
+        int pending = 0;
     };
 } // namespace Qv2ray::components::latency::realping

@@ -1,9 +1,5 @@
 #pragma once
 #include "base/Qv2rayBase.hpp"
-namespace uvw
-{
-    class Loop;
-}
 struct sockaddr_storage;
 namespace Qv2ray::components::latency
 {
@@ -44,8 +40,7 @@ namespace Qv2ray::components::latency
       private:
         int totalTestCount;
         // we're not introduce multi latency test thread for now,
-        // cause it's easy to use a scheduler like round-robin scheme
-        // and libuv event loop is fast.
+        // cause it's easy to use a scheduler like round-robin scheme.
         LatencyTestThread *latencyThread;
     };
 } // namespace Qv2ray::components::latency

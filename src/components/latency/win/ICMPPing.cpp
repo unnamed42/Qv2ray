@@ -27,24 +27,52 @@ namespace Qv2ray::components::latency::icmping
     ICMPPing ::~ICMPPing()
     {
     }
+
+    void ICMPPing::start()
+    {
+        data.totalCount = 0;
+        data.failedCount = 0;
+        data.worst = 0;
+        data.avg = 0;
+        data.best = 0;
+        startResolve();
+    }
+
+    void ICMPPing::onHostResolved()
+    {
+        // IcmpSendEcho2 uses IPv4 addresses only.
+        if (targetAddress.isNull() || targetAddress.protocol() != QAbstractSocket::IPv4Protocol)
+        {
+            data.errorMessage = QObject::tr("ICMP ping only supports IPv4 addresses");
+            data.avg = LATENCY_TEST_VALUE_ERROR;
+            data.totalCount = req.totalCount;
+            data.failedCount = req.totalCount;
+            notifyCompleted();
+            finish();
+            return;
+        }
+        ping();
+    }
+
     void ICMPPing::ping()
     {
-        waitHandleTimer = loop->resource<uvw::TimerHandle>();
-        waitHandleTimer->on<uvw::TimerEvent>([ptr = shared_from_this(), this](auto &&, auto &&) {
-            SleepEx(0, TRUE);
-            if (data.failedCount + successCount == data.totalCount)
-            {
-                waitHandleTimer->stop();
-                waitHandleTimer->close();
-                waitHandleTimer->clear();
-            }
-        });
+        connect(&waitHandleTimer, &QTimer::timeout, this,
+                [this]()
+                {
+                    // Pump pending I/O completion APCs from IcmpSendEcho2.
+                    SleepEx(0, TRUE);
+                    if (data.failedCount + successCount == data.totalCount)
+                    {
+                        waitHandleTimer.stop();
+                    }
+                });
         for (; data.totalCount < req.totalCount; ++data.totalCount)
         {
             pingImpl();
         }
-        waitHandleTimer->start(uvw::TimerHandle::Time{ 500 }, uvw::TimerHandle::Time{ 500 });
+        waitHandleTimer.start(500);
     }
+
     void ICMPPing::pingImpl()
     {
         constexpr WORD payload_size = 1;
@@ -65,21 +93,22 @@ namespace Qv2ray::components::latency::icmping
                     IcmpCloseHandle(hIcmpFile);
             }
         };
-        auto icmpReply = new ICMPReply{ [this, id = req.id](bool isSuccess, long res, const QString &message, HANDLE h) {
-            if (!isSuccess)
-            {
-                data.errorMessage = message;
-                data.failedCount++;
-            }
-            else
-            {
-                data.avg += res;
-                data.best = std::min(res, data.best);
-                data.worst = std::max(res, data.worst);
-                successCount++;
-            }
-            notifyTestHost(testHost, id);
-        } };
+        auto icmpReply = new ICMPReply{ [this, id = req.id](bool isSuccess, long res, const QString &message, HANDLE h)
+                                        {
+                                            if (!isSuccess)
+                                            {
+                                                data.errorMessage = message;
+                                                data.failedCount++;
+                                            }
+                                            else
+                                            {
+                                                data.avg += res;
+                                                data.best = std::min(res, data.best);
+                                                data.worst = std::max(res, data.worst);
+                                                successCount++;
+                                            }
+                                            notifyTestHost(testHost, id);
+                                        } };
         if (icmpReply->hIcmpFile == INVALID_HANDLE_VALUE)
         {
             data.errorMessage = "IcmpCreateFile failed";
@@ -90,7 +119,8 @@ namespace Qv2ray::components::latency::icmping
         }
         IcmpSendEcho2(
             icmpReply->hIcmpFile, NULL,
-            [](PVOID ctx, PIO_STATUS_BLOCK b, ULONG r) {
+            [](PVOID ctx, PIO_STATUS_BLOCK b, ULONG r)
+            {
                 static int i = 1;
                 LOG("hit" + QSTRN(i++));
                 auto replyPtr = reinterpret_cast<ICMPReply *>(ctx);
@@ -113,8 +143,8 @@ namespace Qv2ray::components::latency::icmping
                 replyPtr->whenIcmpFailed(isSuccess, res, message, replyPtr->hIcmpFile);
                 delete replyPtr;
             },
-            icmpReply, reinterpret_cast<IPAddr &>(reinterpret_cast<sockaddr_in &>(storage).sin_addr), icmpReply->payload, payload_size, NULL,
-            icmpReply->reply_buf, reply_buf_size, 10000);
+            icmpReply, (IPAddr) targetAddress.toIPv4Address().toIPv4Address(), icmpReply->payload, payload_size, NULL, icmpReply->reply_buf,
+            reply_buf_size, 10000);
     }
 
     bool ICMPPing::notifyTestHost(LatencyTestHost *testHost, const ::Qv2ray::base::ConnectionId &id)
@@ -125,24 +155,12 @@ namespace Qv2ray::components::latency::icmping
                 data.avg = LATENCY_TEST_VALUE_ERROR;
             else
                 data.errorMessage.clear(), data.avg = data.avg / successCount / 1000;
+            waitHandleTimer.stop();
             testHost->OnLatencyTestCompleted(id, data);
+            finish();
             return true;
         }
         return false;
-    }
-    void ICMPPing::start()
-    {
-        data.totalCount = 0;
-        data.failedCount = 0;
-        data.worst = 0;
-        data.avg = 0;
-        af = isAddr();
-        if (af == -1)
-        {
-            getAddrHandle = loop->resource<uvw::GetAddrInfoReq>();
-            sprintf(digitBuffer, "%d", req.port);
-        }
-        async_DNS_lookup(0, 0);
     }
 } // namespace Qv2ray::components::latency::icmping
 #endif

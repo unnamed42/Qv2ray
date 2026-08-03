@@ -2,15 +2,12 @@
 #include "LatencyTest.hpp"
 
 #include <QThread>
-#include <curl/curl.h>
+#include <atomic>
 #include <mutex>
-#include <unordered_set>
+#include <vector>
 
-namespace uvw
-{
-    class Loop;
-    class TimerHandle;
-} // namespace uvw
+class QObject;
+
 namespace Qv2ray::components::latency
 {
     class LatencyTestThread : public QThread
@@ -20,7 +17,7 @@ namespace Qv2ray::components::latency
         explicit LatencyTestThread(QObject *parent = nullptr);
         void stopLatencyTest()
         {
-            isStop = true;
+            isStop.store(true);
         }
         void pushRequest(const QList<ConnectionId> &ids, int totalTestCount, Qv2rayLatencyTestingMethod method);
         void pushRequest(const ConnectionId &id, int totalTestCount, Qv2rayLatencyTestingMethod method);
@@ -29,25 +26,13 @@ namespace Qv2ray::components::latency
         void run() override;
 
       private:
-        struct CURLGlobal
-        {
-            CURLGlobal()
-            {
-                curl_global_init(CURL_GLOBAL_ALL);
-            }
-            ~CURLGlobal()
-            {
-                curl_global_cleanup();
-            }
-        };
-        std::shared_ptr<uvw::Loop> loop;
-        CURLGlobal curlGlobal;
-        bool isStop = false;
-        std::shared_ptr<uvw::TimerHandle> stopTimer;
-        std::vector<LatencyTestRequest> requests;
-        std::mutex m;
+        void processPending();
+        void onWorkerFinished(QObject *worker);
 
-        // static LatencyTestResult TestLatency_p(const ConnectionId &id, const int count);
+        std::atomic<bool> isStop{ false };
+        std::vector<LatencyTestRequest> requests;
+        std::vector<QObject *> workers;
+        std::mutex m;
     };
 
 } // namespace Qv2ray::components::latency

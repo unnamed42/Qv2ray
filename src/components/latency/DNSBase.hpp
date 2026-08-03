@@ -1,130 +1,121 @@
 #pragma once
 #include "LatencyTest.hpp"
-#include "coroutine.hpp"
-#include "uvw.hpp"
+#include "base/Qv2rayBase.hpp"
+
+#include <QAbstractSocket>
+#include <QHostAddress>
+#include <QHostInfo>
+#include <QObject>
+#include <functional>
 
 namespace Qv2ray::components::latency
 {
+    /// Base class for latency-test worker objects.
+    ///
+    /// Provides a QObject-based, Qt-native event loop friendly implementation that
+    /// replaces the old libuv/uvw based one. Host-name resolution is done
+    /// asynchronously through QHostInfo and delivered on the worker thread's event
+    /// loop (the thread the object was created in).
+    ///
+    /// Lifecycle: the owning thread installs a finish callback via setOnFinished().
+    /// A worker calls finish() exactly once when the whole test for one ConnectionId
+    /// has completed (success or failure); the thread then releases and destroys it.
     template<typename T>
-    class DNSBase
-        : public coroutine
-        , public std::enable_shared_from_this<T>
+    class DNSBase : public QObject
     {
       public:
-        DNSBase(const std::shared_ptr<uvw::Loop> &loopin, LatencyTestRequest &req, LatencyTestHost *testHost)
-            : req(std::move(req)), testHost(testHost), loop(loopin)
+        DNSBase(LatencyTestRequest &request, LatencyTestHost *host) : req(std::move(request)), testHost(host)
         {
+            data.method = req.method;
         }
-        virtual ~DNSBase();
+        ~DNSBase() override
+        {
+            if (lookupId >= 0)
+                QHostInfo::abortHostLookup(lookupId);
+        }
+        void setOnFinished(std::function<void()> f)
+        {
+            onFinished = std::move(f);
+        }
 
       protected:
-        int isAddr()
+        /// Called once the target address is known (literal or resolved). Subclasses
+        /// start their actual ping here.
+        virtual void onHostResolved() = 0;
+
+        /// Resolve req.host into targetAddress (accepting literals directly) and then
+        /// invoke onHostResolved() asynchronously. On resolution failure completes the
+        /// test with the DNS error.
+        void startResolve()
         {
-            auto host = req.host.toStdString();
-            if (uv_ip4_addr(host.data(), req.port, reinterpret_cast<sockaddr_in *>(&storage)) == 0)
+            QHostAddress literal;
+            if (literal.setAddress(req.host))
             {
-                return AF_INET;
+                targetAddress = literal;
+                onHostResolved();
+                return;
             }
-            if (uv_ip6_addr(host.data(), req.port, reinterpret_cast<sockaddr_in6 *>(&storage)) == 0)
-            {
-                return AF_INET6;
-            }
-            return -1;
+            lookupId = QHostInfo::lookupHost(req.host, this,
+                                             [this](const QHostInfo &info)
+                                             {
+                                                 lookupId = -1;
+                                                 if (info.error() != QHostInfo::NoError)
+                                                 {
+                                                     failWithError(QObject::tr("DNS not resolved"));
+                                                     return;
+                                                 }
+                                                 const auto addrs = info.addresses();
+                                                 if (addrs.isEmpty())
+                                                 {
+                                                     failWithError(QObject::tr("DNS not resolved"));
+                                                     return;
+                                                 }
+                                                 // Prefer IPv4, fall back to whatever the resolver returned.
+                                                 targetAddress = addrs.first();
+                                                 for (const auto &a : addrs)
+                                                 {
+                                                     if (a.protocol() == QAbstractSocket::IPv4Protocol)
+                                                     {
+                                                         targetAddress = a;
+                                                         break;
+                                                     }
+                                                 }
+                                                 onHostResolved();
+                                             });
         }
 
-        template<typename E, typename H>
-        void async_DNS_lookup(E &&e, H &&h)
+        /// Report the (already filled) result to the GUI thread and release this worker.
+        void notifyCompleted()
         {
-            co_enter(*this)
-            {
-                if (getAddrHandle)
-                {
-                    getAddrHandle->once<uvw::ErrorEvent>(coro(async_DNS_lookup));
-                    getAddrHandle->once<uvw::AddrInfoEvent>(coro(async_DNS_lookup));
-                    co_yield return getAddrHandle->addrInfo(req.host.toStdString(), digitBuffer);
-                    co_yield if constexpr (std::is_same_v<uvw::AddrInfoEvent, std::remove_reference_t<E>>)
-                    {
-                        if (getAddrInfoRes(e) != 0)
-                        {
-                            data.errorMessage = QObject::tr("DNS not resolved");
-                            data.avg = LATENCY_TEST_VALUE_ERROR;
-                            testHost->OnLatencyTestCompleted(req.id, data);
-                            h.clear();
-                            return;
-                        }
-                    }
-                    else
-                    {
-                        if constexpr (std::is_same_v<uvw::ErrorEvent, std::remove_reference_t<E>>)
-                        {
-                            data.errorMessage = QObject::tr("DNS not resolved");
-                            data.avg = LATENCY_TEST_VALUE_ERROR;
-                            testHost->OnLatencyTestCompleted(req.id, data);
-                            h.clear();
-                            return;
-                        }
-                    }
-                }
-            }
-            ping();
-            if (getAddrHandle)
-                getAddrHandle->clear();
+            testHost->OnLatencyTestCompleted(req.id, data);
         }
-        int getAddrInfoRes(uvw::AddrInfoEvent &e)
-        {
-            struct addrinfo *rp = nullptr;
-            for (rp = e.data.get(); rp != nullptr; rp = rp->ai_next)
-                if (rp->ai_family == AF_INET)
-                {
-                    if (rp->ai_family == AF_INET)
-                    {
-                        af = AF_INET;
-                        memcpy(&storage, rp->ai_addr, sizeof(struct sockaddr_in));
-                    }
-                    else if (rp->ai_family == AF_INET6)
-                    {
-                        af = AF_INET6;
-                        memcpy(&storage, rp->ai_addr, sizeof(struct sockaddr_in6));
-                    }
-                    break;
-                }
-            if (rp == nullptr)
-            {
-                // fallback: if we can't find prefered AF, then we choose alternative.
-                for (rp = e.data.get(); rp != nullptr; rp = rp->ai_next)
-                {
-                    if (rp->ai_family == AF_INET)
-                    {
-                        af = AF_INET;
-                        memcpy(&storage, rp->ai_addr, sizeof(struct sockaddr_in));
-                    }
-                    else if (rp->ai_family == AF_INET6)
-                    {
-                        af = AF_INET6;
-                        memcpy(&storage, rp->ai_addr, sizeof(struct sockaddr_in6));
-                    }
-                    break;
-                }
-            }
-            if (rp)
-                return 0;
-            return -1;
-        }
-        virtual void ping() = 0;
 
-      protected:
-        int af = AF_INET;
-        int successCount = 0;
+        /// Emit the DNS-failed result and finish.
+        void failWithError(const QString &msg)
+        {
+            data.errorMessage = msg;
+            data.avg = LATENCY_TEST_VALUE_ERROR;
+            data.worst = LATENCY_TEST_VALUE_ERROR;
+            data.best = LATENCY_TEST_VALUE_ERROR;
+            data.totalCount = req.totalCount;
+            data.failedCount = req.totalCount;
+            notifyCompleted();
+            finish();
+        }
+
+        /// Let the owning thread know the test is fully done.
+        void finish()
+        {
+            if (onFinished)
+                onFinished();
+        }
+
         LatencyTestRequest req;
         LatencyTestResult data;
-        LatencyTestHost *testHost;
-        struct sockaddr_storage storage;
-        char digitBuffer[20] = { 0 };
-        std::shared_ptr<uvw::Loop> loop;
-        std::shared_ptr<uvw::GetAddrInfoReq> getAddrHandle;
+        LatencyTestHost *testHost = nullptr;
+        int successCount = 0;
+        QHostAddress targetAddress;
+        std::function<void()> onFinished;
+        int lookupId = -1;
     };
-    template<typename T>
-    DNSBase<T>::~DNSBase()
-    {
-    }
 } // namespace Qv2ray::components::latency

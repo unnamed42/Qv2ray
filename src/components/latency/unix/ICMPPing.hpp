@@ -3,30 +3,40 @@
 #ifdef Q_OS_UNIX
 
 #include "../DNSBase.hpp"
-#include "uvw.hpp"
 
-#include <QString>
+#include <QObject>
+#include <QSocketNotifier>
+#include <QTimer>
+#include <netinet/in.h>
+#include <vector>
+
 namespace Qv2ray::components::latency::icmping
 {
     class ICMPPing : public DNSBase<ICMPPing>
     {
+        Q_OBJECT
       public:
         using DNSBase<ICMPPing>::DNSBase;
         ~ICMPPing() override;
         void start(int ttl = 30);
 
-      private:
-        void ping() override;
-        bool notifyTestHost();
+      protected:
+        void onHostResolved() override;
 
       private:
+        void ping();
+        bool notifyTestHost();
         void deinit();
+        void onDataAvailable();
+        void onTimeout();
+
         // number incremented with every echo request packet send
         unsigned short seq = 1;
         // socket
         int socketId = -1;
-        std::shared_ptr<uvw::TimerHandle> timeoutTimer;
-        std::shared_ptr<uvw::PollHandle> pollHandle;
+        struct sockaddr_in storage4;
+        QTimer timeoutTimer;
+        QSocketNotifier *readNotifier = nullptr;
         std::vector<timeval> startTimevals;
     };
 } // namespace Qv2ray::components::latency::icmping
