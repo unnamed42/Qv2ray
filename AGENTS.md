@@ -13,7 +13,7 @@ cmake .. -GNinja -DCMAKE_BUILD_TYPE=Release
 cmake --build . --parallel $(nproc)
 ```
 
-- C++23 / Qt 5.15 (default) or Qt 6.5 (`-DQV2RAY_QT6=ON`)
+- C++23 / Qt 6 (default, Qt 6.0+)
 - Android/QML force Qt6
 - MSVC falls back to `/std:c++17`
 - Build options in CMakeLists.txt; key ones: `QV2RAY_UI_TYPE` (QWidget/QML/CLI), `BUILD_TESTING`

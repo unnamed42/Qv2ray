@@ -38,20 +38,12 @@ void ChainSha256Editor::accept()
 QList<QString> ChainSha256Editor::convertFromString(const QString &&str)
 {
     const static QRegularExpression newLine("[\r\n]");
-#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
-    return str.split(newLine, Qt::SplitBehaviorFlags::SkipEmptyParts);
-#else
-    return str.split(newLine, QString::SkipEmptyParts);
-#endif
+return str.split(newLine, Qt::SplitBehaviorFlags::SkipEmptyParts);
 }
 
 std::optional<QString> ChainSha256Editor::validateError(const QList<QString> &newChain)
 {
-#if QT_VERSION >= QT_VERSION_CHECK(5, 12, 0)
-    const static QRegularExpression sha256(QRegularExpression::anchoredPattern("[0-9a-fA-F]{64}"));
-#else
-    const static QRegularExpression sha256("^[0-9a-fA-F]{64}$");
-#endif
+const static QRegularExpression sha256(QRegularExpression::anchoredPattern("[0-9a-fA-F]{64}"));
     for (const auto &entry : newChain)
     {
         if(!sha256.match(entry).hasMatch())
