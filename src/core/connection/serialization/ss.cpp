@@ -17,13 +17,13 @@ namespace Qv2ray::core::connection
             // auto ssUri = _ssUri.toStdString();
             if (ssUri.length() < 5)
             {
-                LOG("ss:// string too short");
+                QVLOG("ss:// string too short");
                 *errMessage = QObject::tr("SS URI is too short");
             }
 
             auto uri = ssUri.mid(5);
             auto hashPos = uri.lastIndexOf("#");
-            DEBUG("Hash sign position: " + QSTRN(hashPos));
+            QVDEBUG("Hash sign position: " + QSTRN(hashPos));
 
             if (hashPos >= 0)
             {
@@ -33,14 +33,14 @@ namespace Qv2ray::core::connection
             }
 
             auto atPos = uri.indexOf('@');
-            DEBUG("At sign position: " + QSTRN(atPos));
+            QVDEBUG("At sign position: " + QSTRN(atPos));
 
             if (atPos < 0)
             {
                 // Old URI scheme
                 QString decoded = QByteArray::fromBase64(uri.toUtf8(), QByteArray::Base64Option::OmitTrailingEquals);
                 auto colonPos = decoded.indexOf(':');
-                DEBUG("Colon position: " + QSTRN(colonPos));
+                QVDEBUG("Colon position: " + QSTRN(colonPos));
 
                 if (colonPos < 0)
                 {
@@ -50,7 +50,7 @@ namespace Qv2ray::core::connection
                 server.method = decoded.left(colonPos);
                 decoded.remove(0, colonPos + 1);
                 atPos = decoded.lastIndexOf('@');
-                DEBUG("At sign position: " + QSTRN(atPos));
+                QVDEBUG("At sign position: " + QSTRN(atPos));
 
                 if (atPos < 0)
                 {
@@ -60,7 +60,7 @@ namespace Qv2ray::core::connection
                 server.password = decoded.mid(0, atPos);
                 decoded.remove(0, atPos + 1);
                 colonPos = decoded.lastIndexOf(':');
-                DEBUG("Colon position: " + QSTRN(colonPos));
+                QVDEBUG("Colon position: " + QSTRN(colonPos));
 
                 if (colonPos < 0)
                 {
@@ -79,7 +79,7 @@ namespace Qv2ray::core::connection
                 const auto userInfo = SafeBase64Decode(x.userName());
                 const auto userInfoSp = userInfo.indexOf(':');
                 //
-                DEBUG("Userinfo splitter position: " + QSTRN(userInfoSp));
+                QVDEBUG("Userinfo splitter position: " + QSTRN(userInfoSp));
 
                 if (userInfoSp < 0)
                 {
@@ -98,7 +98,7 @@ namespace Qv2ray::core::connection
             outbounds.append(GenerateOutboundEntry(OUTBOUND_TAG_PROXY, "shadowsocks", GenerateShadowSocksOUT({ server }), {}));
             JADD(outbounds)
             *alias = alias->isEmpty() ? d_name : *alias + "_" + d_name;
-            LOG("Deduced alias: " + *alias);
+            QVLOG("Deduced alias: " + *alias);
             return root;
         }
 

@@ -81,7 +81,7 @@ namespace Qv2ray::core
             }
             else
             {
-                LOG("Unknown outbound type: " + outboundType + ", cannot deduce host and port.");
+                QVLOG("Unknown outbound type: " + outboundType + ", cannot deduce host and port.");
             }
         }
         return { QObject::tr("N/A"), QObject::tr("N/A"), 0 };

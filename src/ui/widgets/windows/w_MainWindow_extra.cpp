@@ -98,9 +98,9 @@ void MainWindow::MWSetSystemProxy()
 
     if (!proxyAddress.isEmpty())
     {
-        LOG("ProxyAddress: " + proxyAddress);
-        LOG("HTTP Port: " + QSTRN(httpPort));
-        LOG("SOCKS Port: " + QSTRN(socksPort));
+        QVLOG("ProxyAddress: " + proxyAddress);
+        QVLOG("HTTP Port: " + QSTRN(httpPort));
+        QVLOG("SOCKS Port: " + QSTRN(socksPort));
         SetSystemProxy(proxyAddress, httpPort, socksPort);
         qvAppTrayIcon->setIcon(Q_TRAYICON("tray-systemproxy"));
         if (!GlobalConfig.uiConfig.quietMode)
@@ -110,7 +110,7 @@ void MainWindow::MWSetSystemProxy()
     }
     else
     {
-        LOG("Neither of HTTP nor SOCKS is enabled, cannot set system proxy.");
+        QVLOG("Neither of HTTP nor SOCKS is enabled, cannot set system proxy.");
         QvMessageBoxWarn(this, tr("Cannot set system proxy"), tr("Both HTTP and SOCKS inbounds are not enabled"));
     }
 }
@@ -158,7 +158,7 @@ void MainWindow::CheckSubscriptionsUpdate()
         {
             updateList << std::pair{ info.displayName, entry };
             updateNamesList << info.displayName;
-            LOG(QString("Subscription update \"%1\": L=%2 R=%3 I=%4")
+            QVLOG(QString("Subscription update \"%1\": L=%2 R=%3 I=%4")
                     .arg(info.displayName)
                     .arg(lastRenewDate.toString())
                     .arg(QSTRN(info.subscriptionOption.updateInterval))
@@ -178,12 +178,12 @@ void MainWindow::CheckSubscriptionsUpdate()
         {
             if (result == Yes)
             {
-                LOG("Updating subscription: " + name);
+                QVLOG("Updating subscription: " + name);
                 ConnectionManager->UpdateSubscriptionAsync(id);
             }
             else if (result == Ignore)
             {
-                LOG("Ignored subscription update: " + name);
+                QVLOG("Ignored subscription update: " + name);
                 ConnectionManager->IgnoreSubscriptionUpdate(id);
             }
         }

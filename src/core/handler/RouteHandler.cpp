@@ -81,7 +81,7 @@ namespace Qv2ray::core::handler
 
             if (meta.outboundTags.isEmpty())
             {
-                LOG("Trying to expand an empty chain.");
+                QVLOG("Trying to expand an empty chain.");
                 continue;
             }
 
@@ -110,7 +110,7 @@ namespace Qv2ray::core::handler
 
                 if (!outboundCache.contains(chainOutboundTag))
                 {
-                    LOG("Cannot build outbound chain: Missing tag: " + firstOutboundTag);
+                    QVLOG("Cannot build outbound chain: Missing tag: " + firstOutboundTag);
                     return false;
                 }
                 auto newOutbound = outboundCache[chainOutboundTag];
@@ -141,7 +141,7 @@ namespace Qv2ray::core::handler
                     lastOutbound = PluginHost->GetOutboundInfo(outboundProtocol, outboundSettings, getOutboundInfoStatus);
                     if (!getOutboundInfoStatus)
                     {
-                        LOG("Cannot get outbound info for: " + chainOutboundTag);
+                        QVLOG("Cannot get outbound info for: " + chainOutboundTag);
                         return false;
                     }
 
@@ -233,7 +233,7 @@ namespace Qv2ray::core::handler
             // rule object.
             ROUTING routing(root["routing"].toObject());
             QJsonArray newRules;
-            LOG("Processing an existing routing table.");
+            QVLOG("Processing an existing routing table.");
 
             for (const auto &_rule : routing["rules"].toArray())
             {
@@ -247,13 +247,13 @@ namespace Qv2ray::core::handler
                 }
                 else
                 {
-                    LOG("We found a rule without QV2RAY_RULE_USE_BALANCER, so didn't process it.");
+                    QVLOG("We found a rule without QV2RAY_RULE_USE_BALANCER, so didn't process it.");
                 }
 
                 // If this entry has been disabled.
                 if (rule.contains("QV2RAY_RULE_ENABLED") && rule["QV2RAY_RULE_ENABLED"].toBool() == false)
                 {
-                    LOG("Discarded a rule as it's been set DISABLED");
+                    QVLOG("Discarded a rule as it's been set DISABLED");
                 }
                 else
                 {
@@ -266,22 +266,22 @@ namespace Qv2ray::core::handler
             root["outbounds"] = ExpandExternalConnection(OUTBOUNDS(root["outbounds"].toArray()));
             const auto result = ExpandChainedOutbounds(root);
             if (!result)
-                LOG("Cannot expand chained outbounds!");
+                QVLOG("Cannot expand chained outbounds!");
         }
         else
         {
-            LOG("Processing a simple connection config");
+            QVLOG("Processing a simple connection config");
             if (root["outbounds"].toArray().count() != 1)
             {
                 // There are no ROUTING but 2 or more outbounds.... This is rare, but possible.
-                LOG("WARN: This message usually indicates the config file has logic errors:");
-                LOG("WARN: --> The config file has NO routing section, however more than 1 outbounds are detected.");
+                QVLOG("WARN: This message usually indicates the config file has logic errors:");
+                QVLOG("WARN: --> The config file has NO routing section, however more than 1 outbounds are detected.");
             }
             //
             auto tag = QJsonIO::GetValue(root, "outbounds", 0, "tag").toString();
             if (tag.isEmpty())
             {
-                LOG("Applying workaround when an outbound tag is empty");
+                QVLOG("Applying workaround when an outbound tag is empty");
                 tag = GenerateRandomString(15);
                 QJsonIO::SetValue(root, tag, "outbounds", 0, "tag");
             }
@@ -290,7 +290,7 @@ namespace Qv2ray::core::handler
             // Browser Forwarding
             if (QJsonIO::GetValue(root, "outbounds", 0, "streamSettings", "wsSettings", "useBrowserForwarding").toBool(false))
             {
-                LOG("Applying browserForwarder configuration");
+                QVLOG("Applying browserForwarder configuration");
                 QJsonIO::SetValue(root, browserForwardingConf.address, "browserForwarder", "listenAddr");
                 QJsonIO::SetValue(root, browserForwardingConf.port, "browserForwarder", "listenPort");
             }
@@ -303,11 +303,11 @@ namespace Qv2ray::core::handler
                 {
                     if (fpConf.type.isEmpty())
                     {
-                        DEBUG("WARNING: Empty forward proxy type.");
+                        QVDEBUG("WARNING: Empty forward proxy type.");
                     }
                     else if (fpConf.type.toLower() != "http" && fpConf.type.toLower() != "socks")
                     {
-                        DEBUG("WARNING: Unsupported forward proxy type: " + fpConf.type);
+                        QVDEBUG("WARNING: Unsupported forward proxy type: " + fpConf.type);
                     }
                     else
                     {
@@ -315,7 +315,7 @@ namespace Qv2ray::core::handler
                             { "tag", OUTBOUND_TAG_FORWARD_PROXY }, //
                             { "transportLayer", true }             //
                         };                                         //
-                        LOG("Applying forward proxy to current connection.");
+                        QVLOG("Applying forward proxy to current connection.");
                         QJsonIO::SetValue(root, proxySettings, "outbounds", 0, "proxySettings");
                         const auto forwardProxySettings = GenerateHTTPSOCKSOut(fpConf.serverAddress, //
                                                                                fpConf.port,          //
@@ -384,7 +384,7 @@ namespace Qv2ray::core::handler
         {
             root.insert("dns", GenerateDNS(dnsConf));
             root.insert("fakedns", fakeDNSConf.toJson());
-            LOG("Added global DNS config");
+            QVLOG("Added global DNS config");
         }
 
         //
@@ -394,7 +394,7 @@ namespace Qv2ray::core::handler
         if (!root.contains("inbounds") || root.value("inbounds").toArray().empty())
         {
             root["inbounds"] = GenerateDefaultInbounds();
-            DEBUG("Added global inbound config");
+            QVDEBUG("Added global inbound config");
         }
 
         //

@@ -29,7 +29,7 @@ OutboundEditor::OutboundEditor(QWidget *parent) : QDialog(parent), tag(OUTBOUND_
         const auto guiInterface = plugin->pluginInterface->GetGUIInterface();
 
         if (!guiInterface)
-            LOG("Found a plugin with COMPONENT_GUI but returns an invalid GUI interface: " + plugin->metadata.Name);
+            QVLOG("Found a plugin with COMPONENT_GUI but returns an invalid GUI interface: " + plugin->metadata.Name);
 
         if (!guiInterface->GetComponents().contains(GUI_COMPONENT_OUTBOUND_EDITOR))
             continue;
@@ -142,7 +142,7 @@ void OutboundEditor::reloadGUI()
     }
     if (!processed)
     {
-        LOG("Outbound type: ", outboundType, " is not supported.");
+        QVLOG("Outbound type: ", outboundType, " is not supported.");
         QvMessageBoxWarn(this, tr("Unknown outbound."),
                          tr("The specified outbound type is invalid, this may be caused by a plugin failure.") + NEWLINE +
                              tr("Please use the JsonEditor or reload the plugin."));

@@ -8,7 +8,7 @@
 
 #define QV_MODULE_NAME "SettingsUpgrade"
 
-#define UPGRADELOG(msg) LOG("[" + QSTRN(fromVersion) + "-" + QSTRN(fromVersion + 1) + "] --> " + msg)
+#define UPGRADELOG(msg) QVLOG("[" + QSTRN(fromVersion) + "-" + QSTRN(fromVersion + 1) + "] --> " + msg)
 
 namespace Qv2ray
 {
@@ -66,7 +66,7 @@ namespace Qv2ray
                     auto filePath = QV2RAY_CONFIG_DIR + config.toString() + QV2RAY_CONFIG_FILE_EXTENSION;
                     auto configFile = QFile(filePath);
                     auto newUuid = GenerateUuid();
-                    DEBUG("Generated new UUID: " + newUuid);
+                    QVDEBUG("Generated new UUID: " + newUuid);
 
                     // Check Autostart Id
                     if (root["autoStartConfig"].toObject()["subscriptionName"].toString().isEmpty())
@@ -92,7 +92,7 @@ namespace Qv2ray
                     QJsonObject connectionObject;
                     connectionObject["displayName"] = config.toString();
                     defaultGroupConnectionId << newUuid;
-                    DEBUG("Pushed uuid: " + newUuid + " to default group.");
+                    QVDEBUG("Pushed uuid: " + newUuid + " to default group.");
                     rootConnections[newUuid] = connectionObject;
                 }
 
@@ -425,7 +425,7 @@ namespace Qv2ray
                 QvMessageBoxWarn(nullptr, QObject::tr("Configuration Upgrade Failed"),
                                  QObject::tr("Unsupported config version number: ") + QSTRN(fromVersion) + NEWLINE + NEWLINE +
                                      QObject::tr("Please upgrade firstly up to Qv2ray v2.0/v2.1 and try again."));
-                LOG("The configuration version of your old Qv2ray installation is out-of-date and that"
+                QVLOG("The configuration version of your old Qv2ray installation is out-of-date and that"
                     " version is not supported anymore, please try to update to an intermediate version of Qv2ray first.");
                 qApp->exit(1);
             }
@@ -438,7 +438,7 @@ namespace Qv2ray
     QJsonObject UpgradeSettingsVersion(int fromVersion, int toVersion, const QJsonObject &original)
     {
         auto root = original;
-        LOG("Migrating config from version ", fromVersion, "to", toVersion);
+        QVLOG("Migrating config from version ", fromVersion, "to", toVersion);
 
         for (int i = fromVersion; i < toVersion; i++)
         {

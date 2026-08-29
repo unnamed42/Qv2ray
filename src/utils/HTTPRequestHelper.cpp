@@ -11,7 +11,7 @@ namespace Qv2ray::common::network
 {
     void NetworkRequestHelper::setHeader(QNetworkRequest &request, const QByteArray &key, const QByteArray &value)
     {
-        DEBUG("Adding HTTP request header: " + key + ":" + value);
+        QVDEBUG("Adding HTTP request header: " + key + ":" + value);
         request.setRawHeader(key, value);
     }
 
@@ -21,7 +21,7 @@ namespace Qv2ray::common::network
         {
             case Qv2rayConfig_Network::QVPROXY_NONE:
             {
-                DEBUG("Get without proxy.");
+                QVDEBUG("Get without proxy.");
                 accessManager.setProxy(QNetworkProxy(QNetworkProxy::ProxyType::NoProxy));
                 break;
             }
@@ -45,7 +45,7 @@ namespace Qv2ray::common::network
 
         if (accessManager.proxy().type() == QNetworkProxy::Socks5Proxy)
         {
-            DEBUG("Adding HostNameLookupCapability to proxy.");
+            QVDEBUG("Adding HostNameLookupCapability to proxy.");
             accessManager.proxy().setCapabilities(accessManager.proxy().capabilities() | QNetworkProxy::HostNameLookupCapability);
         }
 
@@ -77,7 +77,7 @@ namespace Qv2ray::common::network
         }
         //
         // Data or timeout?
-        LOG(_reply->errorString());
+        QVLOG(_reply->errorString());
         auto data = _reply->readAll();
         return data;
     }
@@ -97,10 +97,10 @@ namespace Qv2ray::common::network
                 bool h2Used = reply->attribute(QNetworkRequest::HTTP2WasUsedAttribute).toBool();
 #endif
                 if (h2Used)
-                    DEBUG("HTTP/2 was used.");
+                    QVDEBUG("HTTP/2 was used.");
 
                 if (reply->error() != QNetworkReply::NoError)
-                    LOG("Network error: " + QString(QMetaEnum::fromType<QNetworkReply::NetworkError>().key(reply->error())));
+                    QVLOG("Network error: " + QString(QMetaEnum::fromType<QNetworkReply::NetworkError>().key(reply->error())));
 
                 funcPtr(reply->readAll());
                 accessManagerPtr->deleteLater();

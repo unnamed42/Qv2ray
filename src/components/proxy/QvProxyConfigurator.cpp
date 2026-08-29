@@ -28,7 +28,7 @@ namespace Qv2ray::components::proxy
         p.start();
         p.waitForStarted();
         p.waitForFinished();
-        LOG(p.errorString());
+        QVLOG(p.errorString());
         auto str = p.readAllStandardOutput();
         auto lines = SplitLines(str);
         QStringList result;
@@ -43,7 +43,7 @@ namespace Qv2ray::components::proxy
             }
         }
 
-        LOG("Found " + QSTRN(result.size()) + " network services: " + result.join(";"));
+        QVLOG("Found " + QSTRN(result.size()) + " network services: " + result.join(";"));
         return result;
     }
 #endif
@@ -73,44 +73,44 @@ namespace Qv2ray::components::proxy
 
         if (!InternetQueryOption(nullptr, INTERNET_OPTION_PER_CONNECTION_OPTION, &List, &nSize))
         {
-            LOG("InternetQueryOption failed, GLE=" + QSTRN(GetLastError()));
+            QVLOG("InternetQueryOption failed, GLE=" + QSTRN(GetLastError()));
         }
 
-        LOG("System default proxy info:");
+        QVLOG("System default proxy info:");
 
         if (Option[0].Value.pszValue != nullptr)
         {
-            LOG(QString::fromWCharArray(Option[0].Value.pszValue));
+            QVLOG(QString::fromWCharArray(Option[0].Value.pszValue));
         }
 
         if ((Option[2].Value.dwValue & PROXY_TYPE_AUTO_PROXY_URL) == PROXY_TYPE_AUTO_PROXY_URL)
         {
-            LOG("PROXY_TYPE_AUTO_PROXY_URL");
+            QVLOG("PROXY_TYPE_AUTO_PROXY_URL");
         }
 
         if ((Option[2].Value.dwValue & PROXY_TYPE_AUTO_DETECT) == PROXY_TYPE_AUTO_DETECT)
         {
-            LOG("PROXY_TYPE_AUTO_DETECT");
+            QVLOG("PROXY_TYPE_AUTO_DETECT");
         }
 
         if ((Option[2].Value.dwValue & PROXY_TYPE_DIRECT) == PROXY_TYPE_DIRECT)
         {
-            LOG("PROXY_TYPE_DIRECT");
+            QVLOG("PROXY_TYPE_DIRECT");
         }
 
         if ((Option[2].Value.dwValue & PROXY_TYPE_PROXY) == PROXY_TYPE_PROXY)
         {
-            LOG("PROXY_TYPE_PROXY");
+            QVLOG("PROXY_TYPE_PROXY");
         }
 
         if (!InternetQueryOption(nullptr, INTERNET_OPTION_PER_CONNECTION_OPTION, &List, &nSize))
         {
-            LOG("InternetQueryOption failed,GLE=" + QSTRN(GetLastError()));
+            QVLOG("InternetQueryOption failed,GLE=" + QSTRN(GetLastError()));
         }
 
         if (Option[4].Value.pszValue != nullptr)
         {
-            LOG(QString::fromStdWString(Option[4].Value.pszValue));
+            QVLOG(QString::fromStdWString(Option[4].Value.pszValue));
         }
 
         INTERNET_VERSION_INFO Version;
@@ -145,7 +145,7 @@ namespace Qv2ray::components::proxy
 
         if (nullptr == proxy_full_addr)
         {
-            LOG("Clearing system proxy");
+            QVLOG("Clearing system proxy");
             //
             list.dwOptionCount = 1;
             list.pOptions = new INTERNET_PER_CONN_OPTION[1];
@@ -163,7 +163,7 @@ namespace Qv2ray::components::proxy
         }
         else if (isPAC)
         {
-            LOG("Setting system proxy for PAC");
+            QVLOG("Setting system proxy for PAC");
             //
             list.dwOptionCount = 2;
             list.pOptions = new INTERNET_PER_CONN_OPTION[2];
@@ -182,7 +182,7 @@ namespace Qv2ray::components::proxy
         }
         else
         {
-            LOG("Setting system proxy for Global Proxy");
+            QVLOG("Setting system proxy for Global Proxy");
             //
             list.dwOptionCount = 2;
             list.pOptions = new INTERNET_PER_CONN_OPTION[2];
@@ -207,7 +207,7 @@ namespace Qv2ray::components::proxy
         // Set proxy for LAN.
         if (!InternetSetOption(nullptr, INTERNET_OPTION_PER_CONNECTION_OPTION, &list, dwBufSize))
         {
-            LOG("InternetSetOption failed for LAN, GLE=" + QSTRN(GetLastError()));
+            QVLOG("InternetSetOption failed for LAN, GLE=" + QSTRN(GetLastError()));
         }
 
         RASENTRYNAME entry;
@@ -225,7 +225,7 @@ namespace Qv2ray::components::proxy
         }
         if (ERROR_SUCCESS != ret)
         {
-            LOG("Failed to list entry names");
+            QVLOG("Failed to list entry names");
             return false;
         }
 
@@ -235,7 +235,7 @@ namespace Qv2ray::components::proxy
             list.pszConnection = entryAddr[i].szEntryName;
             if (!InternetSetOption(nullptr, INTERNET_OPTION_PER_CONNECTION_OPTION, &list, dwBufSize))
             {
-                LOG("InternetSetOption failed for connectoid " + QString::fromWCharArray(list.pszConnection) + ", GLE=" + QSTRN(GetLastError()));
+                QVLOG("InternetSetOption failed for connectoid " + QString::fromWCharArray(list.pszConnection) + ", GLE=" + QSTRN(GetLastError()));
             }
         }
 
@@ -248,35 +248,35 @@ namespace Qv2ray::components::proxy
 
     void SetSystemProxy(const QString &address, int httpPort, int socksPort)
     {
-        LOG("Setting up System Proxy");
+        QVLOG("Setting up System Proxy");
         bool hasHTTP = (httpPort > 0 && httpPort < 65536);
         bool hasSOCKS = (socksPort > 0 && socksPort < 65536);
 
 #ifdef Q_OS_WIN
         if (!hasHTTP)
         {
-            LOG("Nothing?");
+            QVLOG("Nothing?");
             return;
         }
         else
         {
-            LOG("Qv2ray will set system proxy to use HTTP");
+            QVLOG("Qv2ray will set system proxy to use HTTP");
         }
 #else
         if (!hasHTTP && !hasSOCKS)
         {
-            LOG("Nothing?");
+            QVLOG("Nothing?");
             return;
         }
 
         if (hasHTTP)
         {
-            LOG("Qv2ray will set system proxy to use HTTP");
+            QVLOG("Qv2ray will set system proxy to use HTTP");
         }
 
         if (hasSOCKS)
         {
-            LOG("Qv2ray will set system proxy to use SOCKS");
+            QVLOG("Qv2ray will set system proxy to use SOCKS");
         }
 #endif
 
@@ -295,7 +295,7 @@ namespace Qv2ray::components::proxy
              __a = address + ":" + QSTRN(httpPort);
         }
 
-        LOG("Windows proxy string: " + __a);
+        QVLOG("Windows proxy string: " + __a);
         auto proxyStrW = new WCHAR[__a.length() + 1];
         wcscpy(proxyStrW, __a.toStdWString().c_str());
         //
@@ -303,7 +303,7 @@ namespace Qv2ray::components::proxy
 
         if (!__SetProxyOptions(proxyStrW, false))
         {
-            LOG("Failed to set proxy.");
+            QVLOG("Failed to set proxy.");
         }
 
         __QueryProxyOptions();
@@ -393,20 +393,20 @@ namespace Qv2ray::components::proxy
             // execute and get the code
             const auto returnCode = QProcess::execute(action.first, action.second);
             // print out the commands and result codes
-            DEBUG(QString("[%1] Program: %2, Args: %3").arg(returnCode).arg(action.first).arg(action.second.join(";")));
+            QVDEBUG(QString("[%1] Program: %2, Args: %3").arg(returnCode).arg(action.first).arg(action.second.join(";")));
             // give the code back
             results << (returnCode == QProcess::NormalExit);
         }
 
         if (results.count(true) != actions.size())
         {
-            LOG("Something wrong when setting proxies.");
+            QVLOG("Something wrong when setting proxies.");
         }
 #else
 
         for (const auto &service : macOSgetNetworkServices())
         {
-            LOG("Setting proxy for interface: " + service);
+            QVLOG("Setting proxy for interface: " + service);
             if (hasHTTP)
             {
                 QProcess::execute("/usr/sbin/networksetup", { "-setwebproxystate", service, "on" });
@@ -435,12 +435,12 @@ namespace Qv2ray::components::proxy
 
     void ClearSystemProxy()
     {
-        LOG("Clearing System Proxy");
+        QVLOG("Clearing System Proxy");
 
 #ifdef Q_OS_WIN
         if (!__SetProxyOptions(nullptr, false))
         {
-            LOG("Failed to clear proxy.");
+            QVLOG("Failed to clear proxy.");
         }
 #elif defined(Q_OS_LINUX)
         QList<ProcessArgument> actions;
@@ -479,13 +479,13 @@ namespace Qv2ray::components::proxy
             // execute and get the code
             const auto returnCode = QProcess::execute(action.first, action.second);
             // print out the commands and result codes
-            DEBUG(QString("[%1] Program: %2, Args: %3").arg(returnCode).arg(action.first).arg(action.second.join(";")));
+            QVDEBUG(QString("[%1] Program: %2, Args: %3").arg(returnCode).arg(action.first).arg(action.second.join(";")));
         }
 
 #else
         for (const auto &service : macOSgetNetworkServices())
         {
-            LOG("Clearing proxy for interface: " + service);
+            QVLOG("Clearing proxy for interface: " + service);
             QProcess::execute("/usr/sbin/networksetup", { "-setautoproxystate", service, "off" });
             QProcess::execute("/usr/sbin/networksetup", { "-setwebproxystate", service, "off" });
             QProcess::execute("/usr/sbin/networksetup", { "-setsecurewebproxystate", service, "off" });

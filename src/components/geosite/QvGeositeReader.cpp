@@ -19,7 +19,7 @@ namespace Qv2ray::components::geosite
         {
             QStringList list;
 #ifndef ANDROID
-            LOG("Reading geosites from: " + filepath);
+            QVLOG("Reading geosites from: " + filepath);
             //
             GOOGLE_PROTOBUF_VERIFY_VERSION;
             //
@@ -28,7 +28,7 @@ namespace Qv2ray::components::geosite
 
             if (!opened)
             {
-                LOG("File cannot be opened: " + filepath);
+                QVLOG("File cannot be opened: " + filepath);
                 return list;
             }
 
@@ -44,7 +44,7 @@ namespace Qv2ray::components::geosite
                 list << QString::fromStdString(e.country_code()).toLower();
             }
 
-            LOG("Loaded " + QSTRN(list.count()) + " geosite entries from data file.");
+            QVLOG("Loaded " + QSTRN(list.count()) + " geosite entries from data file.");
             // Optional:  Delete all global objects allocated by libprotobuf.
             google::protobuf::ShutdownProtobufLibrary();
 #endif

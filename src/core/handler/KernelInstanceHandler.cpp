@@ -28,7 +28,7 @@ namespace Qv2ray::core::handler
             {
                 if (kernelMap.contains(protocol))
                 {
-                    LOG("Found multiple kernel providers for a protocol: " + protocol);
+                    QVLOG("Found multiple kernel providers for a protocol: " + protocol);
                     continue;
                 }
                 kernelMap.insert(protocol, internalName);
@@ -103,24 +103,24 @@ namespace Qv2ray::core::handler
                     // Normal outbound, or the one without a plugin supported.
                     // Marked as processed.
                     processedOutbounds.push_back(outbound);
-                    LOG("Outbound protocol " + outProtocol + " is not a registered plugin outbound.");
+                    QVLOG("Outbound protocol " + outProtocol + " is not a registered plugin outbound.");
                     continue;
                 }
-                LOG("Creating kernel plugin instance for protocol" + outProtocol);
+                QVLOG("Creating kernel plugin instance for protocol" + outProtocol);
                 auto kernel = PluginHost->GetPlugin(kernelMap[outProtocol])->pluginInterface->GetKernel()->CreateKernel();
                 // New object does not need disconnect?
                 // disconnect(kernel, &QvPluginKernel::OnKernelStatsAvailable, this, &KernelInstanceHandler::OnStatsDataArrived_p);
                 //
                 QMap<KernelOptionFlags, QVariant> _inboundSettings;
 
-                LOG("V2RayIntegration: " + QSTRN(pluginPort) + " = " + outProtocol);
+                QVLOG("V2RayIntegration: " + QSTRN(pluginPort) + " = " + outProtocol);
                 _inboundSettings[KERNEL_HTTP_ENABLED] = false;
                 _inboundSettings[KERNEL_SOCKS_ENABLED] = true;
                 _inboundSettings[KERNEL_SOCKS_PORT] = pluginPort;
                 _inboundSettings[KERNEL_SOCKS_UDP_ENABLED] = GlobalConfig.inboundConfig.socksSettings.enableUDP;
                 _inboundSettings[KERNEL_SOCKS_LOCAL_ADDRESS] = GlobalConfig.inboundConfig.socksSettings.localIP;
                 _inboundSettings[KERNEL_LISTEN_ADDRESS] = "127.0.0.1";
-                LOG("Sending connection settings to kernel.");
+                QVLOG("Sending connection settings to kernel.");
                 kernel->SetConnectionSettings(_inboundSettings, outbound["settings"].toObject());
                 activeKernels.push_back({ outProtocol, std::move(kernel) });
                 //
@@ -132,7 +132,7 @@ namespace Qv2ray::core::handler
                 processedOutbounds.push_back(pluginOut);
                 pluginPort++;
             }
-            LOG("Applying new outbound settings.");
+            QVLOG("Applying new outbound settings.");
             fullConfig["outbounds"] = processedOutbounds;
             RemoveEmptyMuxFilter(fullConfig);
         }
@@ -144,18 +144,18 @@ namespace Qv2ray::core::handler
             const auto portResult = CheckPort(inboundInfo, activeKernels.size());
             if (portResult)
             {
-                LOG(*portResult);
+                QVLOG(*portResult);
                 return portResult;
             }
             auto firstOutbound = fullConfig["outbounds"].toArray().first().toObject();
             const auto firstOutboundProtocol = firstOutbound["protocol"].toString();
             if (GlobalConfig.pluginConfig.v2rayIntegration)
             {
-                LOG("Starting kernels with V2RayIntegration.");
+                QVLOG("Starting kernels with V2RayIntegration.");
                 bool hasAllKernelStarted = true;
                 for (auto &[outboundProtocol, kernelObject] : activeKernels)
                 {
-                    LOG("Starting kernel for protocol: " + outboundProtocol);
+                    QVLOG("Starting kernel for protocol: " + outboundProtocol);
                     bool status = kernelObject->StartKernel();
                     connect(kernelObject.get(), &PluginKernel::OnKernelCrashed, this, &KernelInstanceHandler::OnKernelCrashed_p,
                             Qt::QueuedConnection);
@@ -164,7 +164,7 @@ namespace Qv2ray::core::handler
                     hasAllKernelStarted = hasAllKernelStarted && status;
                     if (!status)
                     {
-                        LOG("Plugin Kernel: " + outboundProtocol + " failed to start.");
+                        QVLOG("Plugin Kernel: " + outboundProtocol + " failed to start.");
                         break;
                     }
                 }
@@ -193,7 +193,7 @@ namespace Qv2ray::core::handler
             else if (kernelMap.contains(firstOutboundProtocol))
             {
                 // Connections without V2Ray Integration will have and ONLY have ONE kernel.
-                LOG("Starting kernel " + firstOutboundProtocol + " without V2Ray Integration");
+                QVLOG("Starting kernel " + firstOutboundProtocol + " without V2Ray Integration");
                 {
                     auto kernel =
                         PluginHost->GetPlugin(kernelMap[firstOutbound["protocol"].toString()])->pluginInterface->GetKernel()->CreateKernel();
@@ -238,7 +238,7 @@ namespace Qv2ray::core::handler
             }
             else
             {
-                LOG("Starting V2Ray without plugin.");
+                QVLOG("Starting V2Ray without plugin.");
                 currentId = id;
                 auto result = vCoreInstance->StartConnection(fullConfig);
                 if (result.has_value())
@@ -299,7 +299,7 @@ namespace Qv2ray::core::handler
             }
             for (const auto &[kernel, kernelObject] : activeKernels)
             {
-                LOG("Stopping plugin kernel: " + kernel);
+                QVLOG("Stopping plugin kernel: " + kernel);
                 kernelObject->StopKernel();
             }
             pluginLogPrefixPadding = 0;
@@ -308,7 +308,7 @@ namespace Qv2ray::core::handler
         }
         else
         {
-            LOG("Cannot disconnect when there's nothing connected.");
+            QVLOG("Cannot disconnect when there's nothing connected.");
         }
         currentId.clear();
         activeKernels.clear();

@@ -150,7 +150,7 @@ void ImportConfigWindow::on_qrFromScreenBtn_clicked()
         auto str = DecodeQRCode(pix);
         if (str.trimmed().isEmpty())
         {
-            LOG("Cannot decode QR Code from an image, size:", pix.width(), pix.height());
+            QVLOG("Cannot decode QR Code from an image, size:", pix.width(), pix.height());
             QvMessageBoxWarn(this, tr("Capture QRCode"), tr("Cannot find a valid QRCode from this region."));
         }
         else
@@ -204,7 +204,7 @@ void ImportConfigWindow::on_beginImportBtn_clicked()
             vmessConnectionStringTxt->clear();
             errorsList->clear();
             //
-            LOG(linkList.count(), "entries found.");
+            QVLOG(linkList.count(), "entries found.");
 
             while (!linkList.isEmpty())
             {

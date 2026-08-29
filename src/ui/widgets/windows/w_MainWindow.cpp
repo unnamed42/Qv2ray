@@ -639,7 +639,7 @@ void MainWindow::Action_EditComplex()
         CONFIGROOT root = ConnectionManager->GetConnectionRoot(id.connectionId);
         bool isChanged = false;
         //
-        LOG("INFO: Opening route editor.");
+        QVLOG("INFO: Opening route editor.");
         RouteEditor routeWindow(root, this);
         root = routeWindow.OpenEditor();
         isChanged = routeWindow.result() == QDialog::Accepted;
@@ -812,14 +812,14 @@ void MainWindow::OnEditRequested(const ConnectionId &id)
 
     if (IsComplexConfig(outBoundRoot))
     {
-        LOG("INFO: Opening route editor.");
+        QVLOG("INFO: Opening route editor.");
         RouteEditor routeWindow(outBoundRoot, this);
         root = routeWindow.OpenEditor();
         isChanged = routeWindow.result() == QDialog::Accepted;
     }
     else
     {
-        LOG("INFO: Opening single connection edit window.");
+        QVLOG("INFO: Opening single connection edit window.");
         auto out = OUTBOUND(outBoundRoot["outbounds"].toArray().first().toObject());
         OutboundEditor w(out, this);
         auto outboundEntry = w.OpenEditor();
@@ -884,7 +884,7 @@ void MainWindow::Action_DuplicateConnection()
         }
     }
 
-    LOG("Selected ", connlist.count(), " items");
+    QVLOG("Selected ", connlist.count(), " items");
 
     const auto strDupConnTitle = tr("Duplicating Connection(s)", "", connlist.count());
     const auto strDupConnContent = tr("Are you sure to duplicate these connection(s)?", "", connlist.count());

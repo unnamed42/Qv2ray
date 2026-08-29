@@ -23,8 +23,8 @@ QStringList Qv2rayPlatformApplication::CheckPrerequisites()
         // Check OpenSSL version for auto-update and subscriptions
         const auto osslReqVersion = QSslSocket::sslLibraryBuildVersionString();
         const auto osslCurVersion = QSslSocket::sslLibraryVersionString();
-        LOG("Current OpenSSL version: " + osslCurVersion);
-        LOG("Required OpenSSL version: " + osslReqVersion);
+        QVLOG("Current OpenSSL version: " + osslCurVersion);
+        QVLOG("Required OpenSSL version: " + osslReqVersion);
         errors << "Qv2ray cannot run without OpenSSL.";
         errors << "This is usually caused by using the wrong version of OpenSSL";
         errors << "Required=" + osslReqVersion + "Current=" + osslCurVersion;
@@ -39,15 +39,15 @@ bool Qv2rayPlatformApplication::Initialize()
     const auto hasError = parseCommandLine(&errorMessage, &canContinue);
     if (hasError)
     {
-        LOG("Command line:" QVLOG_A(errorMessage));
+        QVLOG("Command line:" QVLOG_A(errorMessage));
         if (!canContinue)
         {
-            LOG("Fatal, Qv2ray cannot continue.");
+            QVLOG("Fatal, Qv2ray cannot continue.");
             return false;
         }
         else
         {
-            LOG("Non-fatal error, continue starting up.");
+            QVLOG("Non-fatal error, continue starting up.");
         }
     }
 
@@ -78,7 +78,7 @@ bool Qv2rayPlatformApplication::Initialize()
             StartupArguments.arguments << Qv2rayStartupArguments::NORMAL;
         bool status = sendMessage(JsonToString(StartupArguments.toJson(), QJsonDocument::Compact).toUtf8());
         if (!status)
-            LOG("Cannot send message.");
+            QVLOG("Cannot send message.");
         SetExitReason(EXIT_SECONDARY_INSTANCE);
         return false;
     }
@@ -230,24 +230,24 @@ bool Qv2rayPlatformApplication::parseCommandLine(QString *errorMessage, bool *ca
 
     if (parser.isSet(exitOption))
     {
-        DEBUG("disconnectOption is set.");
+        QVDEBUG("disconnectOption is set.");
         StartupArguments.arguments << Qv2rayStartupArguments::EXIT;
     }
 
     if (parser.isSet(disconnectOption))
     {
-        DEBUG("disconnectOption is set.");
+        QVDEBUG("disconnectOption is set.");
         StartupArguments.arguments << Qv2rayStartupArguments::DISCONNECT;
     }
 
     if (parser.isSet(reconnectOption))
     {
-        DEBUG("reconnectOption is set.");
+        QVDEBUG("reconnectOption is set.");
         StartupArguments.arguments << Qv2rayStartupArguments::RECONNECT;
     }
 
 #define ProcessExtraStartupOptions(option)                                                                                                           \
-    DEBUG("Startup Options:" QVLOG_A(parser.isSet(option##Option)));                                                                                 \
+    QVDEBUG("Startup Options:" QVLOG_A(parser.isSet(option##Option)));                                                                                 \
     StartupArguments.option = parser.isSet(option##Option);
 
     ProcessExtraStartupOptions(noAPI);

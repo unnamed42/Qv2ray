@@ -87,7 +87,7 @@ void ConnectionItemWidget::BeginConnection()
     }
     else
     {
-        LOG("Trying to start a non-connection entry, this call is illegal.");
+        QVLOG("Trying to start a non-connection entry, this call is illegal.");
     }
 }
 
@@ -118,7 +118,7 @@ void ConnectionItemWidget::OnConnected(const ConnectionGroupPair &id)
     if (id == ConnectionGroupPair{ connectionId, groupId })
     {
         connNameLabel->setText("● " + originalItemName);
-        DEBUG("ConnectionItemWidgetOnConnected signal received for: " + id.connectionId.toString());
+        QVDEBUG("ConnectionItemWidgetOnConnected signal received for: " + id.connectionId.toString());
         emit RequestWidgetFocus(this);
     }
 }

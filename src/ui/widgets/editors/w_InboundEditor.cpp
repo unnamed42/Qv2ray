@@ -44,7 +44,7 @@ InboundEditor::InboundEditor(INBOUND source, QWidget *parent) : QDialog(parent),
 
         if (!guiInterface)
         {
-            LOG("Found a plugin with COMPONENT_GUI but returns an invalid GUI interface: ", plugin->metadata.Name);
+            QVLOG("Found a plugin with COMPONENT_GUI but returns an invalid GUI interface: ", plugin->metadata.Name);
             continue;
         }
 
@@ -142,7 +142,7 @@ void InboundEditor::loadUI()
 
     if (!processed)
     {
-        LOG("Inbound protocol: " + inboundProtocol + " is not supported.");
+        QVLOG("Inbound protocol: " + inboundProtocol + " is not supported.");
         QvMessageBoxWarn(this, tr("Unknown inbound."),
                          tr("The specified inbound type is invalid, this may be caused by a plugin failure.") + NEWLINE +
                              tr("Please use the JsonEditor or reload the plugin."));

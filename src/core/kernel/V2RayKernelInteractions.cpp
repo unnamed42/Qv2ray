@@ -29,31 +29,31 @@ namespace Qv2ray::core::kernel
         if (!coreFile.permissions().testFlag(QFileDevice::ExeUser))
         {
 #if QV2RAY_FEATURE(kernel_set_permission)
-            DEBUG("Core file not executable. Trying to enable.");
+            QVDEBUG("Core file not executable. Trying to enable.");
             const auto result = coreFile.setPermissions(coreFile.permissions().setFlag(QFileDevice::ExeUser));
             if (!result)
             {
-                DEBUG("Failed to enable executable permission.");
+                QVDEBUG("Failed to enable executable permission.");
                 const auto message = tr("Core file is lacking executable permission for the current user.") +
                                      tr("Qv2ray tried to set, but failed because permission denied.");
                 return { false, message };
             }
             else
             {
-                DEBUG("Core executable permission set.");
+                QVDEBUG("Core executable permission set.");
             }
 #endif
-            LOG("Core file not executable.");
+            QVLOG("Core file not executable.");
             return { false, tr("Core file not executable.") };
         }
         else
         {
-            DEBUG("Core file is executable.");
+            QVDEBUG("Core file is executable.");
         }
         return { true, std::nullopt };
 #else
         // For Windows and other users: just skip this check.
-        DEBUG("Skipped check and set core executable state.");
+        QVDEBUG("Skipped check and set core executable state.");
         return { true, tr("Check is skipped") };
 #endif
     }
@@ -78,21 +78,21 @@ namespace Qv2ray::core::kernel
         const auto [abi, err] = kernel::abi::deduceKernelABI(corePath);
         if (err)
         {
-            LOG("Core ABI deduction failed: " + *err);
+            QVLOG("Core ABI deduction failed: " + *err);
             return { false, *err };
         }
-        LOG("Core ABI: " + kernel::abi::abiToString(*abi));
+        QVLOG("Core ABI: " + kernel::abi::abiToString(*abi));
 
         // Get Compiled ABI
         auto compiledABI = kernel::abi::COMPILED_ABI_TYPE;
-        LOG("Host ABI: " + kernel::abi::abiToString(compiledABI));
+        QVLOG("Host ABI: " + kernel::abi::abiToString(compiledABI));
 
         // Check ABI Compatibility.
         switch (kernel::abi::checkCompatibility(compiledABI, *abi))
         {
             case kernel::abi::ABI_NOPE:
             {
-                LOG("Host is incompatible with core");
+                QVLOG("Host is incompatible with core");
                 const auto msg = tr("V2Ray core is incompatible with your platform.\r\n"
                                     "Expected core ABI is %1, but got actual %2.\r\n"
                                     "Maybe you have downloaded the wrong core?")
@@ -101,12 +101,12 @@ namespace Qv2ray::core::kernel
             }
             case kernel::abi::ABI_MAYBE:
             {
-                LOG("WARNING: Host maybe incompatible with core");
+                QVLOG("WARNING: Host maybe incompatible with core");
                 break;
             }
             case kernel::abi::ABI_PERFECT:
             {
-                LOG("Host is compatible with core");
+                QVLOG("Host is compatible with core");
                 break;
             }
         }
@@ -153,7 +153,7 @@ namespace Qv2ray::core::kernel
             return { false, tr("V2Ray core failed with an exit code: ") + QSTRN(exitCode) };
 
         const auto output = proc.readAllStandardOutput();
-        LOG("V2Ray output: " + SplitLines(output).join(";"));
+        QVLOG("V2Ray output: " + SplitLines(output).join(";"));
 
         if (SplitLines(output).isEmpty())
             return { false, tr("V2Ray core returns empty string.") };
@@ -167,7 +167,7 @@ namespace Qv2ray::core::kernel
         const auto assetsPath = GlobalConfig.kernelConfig.AssetsPath();
         if (const auto &[result, msg] = ValidateKernel(kernelPath, assetsPath); result)
         {
-            DEBUG("V2Ray version: " + *msg);
+            QVDEBUG("V2Ray version: " + *msg);
             // Append assets location env.
             auto env = QProcessEnvironment::systemEnvironment();
             env.insert("v2ray.location.asset", assetsPath);
@@ -175,7 +175,7 @@ namespace Qv2ray::core::kernel
             //
             QProcess process;
             process.setProcessEnvironment(env);
-            DEBUG("Starting V2Ray core with test options");
+            QVDEBUG("Starting V2Ray core with test options");
 #ifdef QV2RAY_USE_V5_CORE
             process.start(kernelPath, { "test", "-c", path }, QIODevice::ReadWrite | QIODevice::Text);
 #else
@@ -190,7 +190,7 @@ namespace Qv2ray::core::kernel
                 return std::nullopt;
             }
 
-            DEBUG("Config file check passed.");
+            QVDEBUG("Config file check passed.");
             return std::nullopt;
         }
         else
@@ -205,12 +205,12 @@ namespace Qv2ray::core::kernel
         connect(vProcess, &QProcess::readyReadStandardOutput, this,
                 [&]() { emit OnProcessOutputReadyRead(vProcess->readAllStandardOutput().trimmed()); });
         connect(vProcess, &QProcess::stateChanged, [&](QProcess::ProcessState state) {
-            DEBUG("V2Ray kernel process status changed: " + QVariant::fromValue(state).toString());
+            QVDEBUG("V2Ray kernel process status changed: " + QVariant::fromValue(state).toString());
 
             // If V2Ray crashed AFTER we start it.
             if (kernelStarted && state == QProcess::NotRunning)
             {
-                LOG("V2Ray kernel crashed.");
+                QVLOG("V2Ray kernel crashed.");
                 StopConnection();
                 emit OnProcessErrored("V2Ray kernel crashed.");
             }
@@ -226,7 +226,7 @@ namespace Qv2ray::core::kernel
     {
         if (kernelStarted)
         {
-            LOG("Status is invalid, expect STOPPED when calling StartConnection");
+            QVLOG("Status is invalid, expect STOPPED when calling StartConnection");
             return tr("Invalid V2Ray Instance Status.");
         }
 
@@ -258,7 +258,7 @@ namespace Qv2ray::core::kernel
                     continue;
                 if (tag.isEmpty())
                 {
-                    LOG("Ignored inbound with empty tag.");
+                    QVLOG("Ignored inbound with empty tag.");
                     continue;
                 }
                 tagProtocolMap[isOutbound][tag] = item.toObject()["protocol"].toString();
@@ -268,19 +268,19 @@ namespace Qv2ray::core::kernel
         apiEnabled = false;
         if (QvCoreApplication->StartupArguments.noAPI)
         {
-            LOG("API has been disabled by the command line arguments");
+            QVLOG("API has been disabled by the command line arguments");
         }
         else if (!GlobalConfig.kernelConfig.enableAPI)
         {
-            LOG("API has been disabled by the global config option");
+            QVLOG("API has been disabled by the global config option");
         }
         else if (tagProtocolMap.isEmpty())
         {
-            LOG("RARE: API is disabled since no inbound tags configured. This is usually caused by a bad complex config.");
+            QVLOG("RARE: API is disabled since no inbound tags configured. This is usually caused by a bad complex config.");
         }
         else
         {
-            DEBUG("Starting API");
+            QVDEBUG("Starting API");
             apiWorker->StartAPI(tagProtocolMap);
             apiEnabled = true;
         }

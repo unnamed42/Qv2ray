@@ -86,7 +86,7 @@ namespace Qv2ray::core::connection
 
             if (vmess.trimmed() != vmess)
             {
-                LOG("VMess string has some prefix/postfix spaces, trimming.");
+                QVLOG("VMess string has some prefix/postfix spaces, trimming.");
                 vmess = vmessStr.trimmed();
             }
 
@@ -151,21 +151,21 @@ namespace Qv2ray::core::connection
         else if (!val.isEmpty())                                                                                                                     \
         {                                                                                                                                            \
             key = val.first();                                                                                                                       \
-            DEBUG("Using key \"" #key "\" from the first candidate list: " + key);                                                                   \
+            QVDEBUG("Using key \"" #key "\" from the first candidate list: " + key);                                                                   \
         }                                                                                                                                            \
         else                                                                                                                                         \
         {                                                                                                                                            \
             *errMessage = QObject::tr(#key " does not exist.");                                                                                      \
-            LOG("Cannot process \"" #key "\" since it's not included in the json object.");                                                          \
-            LOG(" --> values: " + val.join(";"));                                                                                                    \
-            LOG(" --> PS: " + ps);                                                                                                                   \
+            QVLOG("Cannot process \"" #key "\" since it's not included in the json object.");                                                          \
+            QVLOG(" --> values: " + val.join(";"));                                                                                                    \
+            QVLOG(" --> PS: " + ps);                                                                                                                   \
         }                                                                                                                                            \
     }
 
             // vmess v1 upgrader
             if (!vmessConf.contains("v"))
             {
-                LOG("Detected deprecated vmess v1. Trying to upgrade...");
+                QVLOG("Detected deprecated vmess v1. Trying to upgrade...");
                 if (const auto network = vmessConf["net"].toString(); network == "ws" || network == "h2")
                 {
                     const QStringList hostComponents = vmessConf["host"].toString().replace(" ", "").split(";");
@@ -223,7 +223,7 @@ namespace Qv2ray::core::connection
             {                                                                //
                 if (net != "quic" && net != "kcp")                           //
                 {                                                            //
-                    LOG("Reset obfs settings from " + type + " to none");    //
+                    QVLOG("Reset obfs settings from " + type + " to none");    //
                     type = "none";                                           //
                 }                                                            //
             }

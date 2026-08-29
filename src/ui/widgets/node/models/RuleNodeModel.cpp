@@ -63,12 +63,12 @@ void RuleNodeModel::setInData(std::vector<std::shared_ptr<NodeData>> indata, Por
     {
         if (!d)
         {
-            LOG("Invalid inbound nodedata to rule.");
+            QVLOG("Invalid inbound nodedata to rule.");
             continue;
         }
         const auto inboundTag = getTag(*static_cast<InboundNodeData *>(d.get())->GetData());
         dataptr->inboundTag.push_back(inboundTag);
-        DEBUG("Connecting inbound:", inboundTag, "to", dataptr->QV2RAY_RULE_TAG);
+        QVDEBUG("Connecting inbound:", inboundTag, "to", dataptr->QV2RAY_RULE_TAG);
     }
 }
 

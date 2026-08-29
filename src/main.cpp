@@ -221,13 +221,13 @@ int main(int argc, char *argv[])
 
     if (qEnvironmentVariableIsSet("QV2RAY_NO_SCALE_FACTORS"))
     {
-        LOG("Force set QT_SCALE_FACTOR to 1.");
-        DEBUG("UI", "Original QT_SCALE_FACTOR was:", qEnvironmentVariable("QT_SCALE_FACTOR"));
+        QVLOG("Force set QT_SCALE_FACTOR to 1.");
+        QVDEBUG("UI", "Original QT_SCALE_FACTOR was:", qEnvironmentVariable("QT_SCALE_FACTOR"));
         qputenv("QT_SCALE_FACTOR", "1");
     }
     else
     {
-        DEBUG("High DPI scaling is enabled.");
+        QVDEBUG("High DPI scaling is enabled.");
 #ifndef QV2RAY_QT6
         QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 #endif
@@ -255,7 +255,7 @@ int main(int argc, char *argv[])
         if (reason == EXIT_INITIALIZATION_FAILED)
         {
             BootstrapMessageBox("Qv2ray Initialization Failed", "PreInitialization Failed." NEWLINE "For more information, please see the log.");
-            LOG("Qv2ray initialization failed:", reason);
+            QVLOG("Qv2ray initialization failed:", reason);
         }
         return reason;
     }
@@ -269,7 +269,7 @@ int main(int argc, char *argv[])
     const auto reason = app.GetExitReason();
     if (reason == EXIT_NEW_VERSION_TRIGGER)
     {
-        LOG("Starting new version of Qv2ray: " + app.StartupArguments._qvNewVersionPath);
+        QVLOG("Starting new version of Qv2ray: " + app.StartupArguments._qvNewVersionPath);
         QProcess::startDetached(app.StartupArguments._qvNewVersionPath, {});
     }
     return reason;

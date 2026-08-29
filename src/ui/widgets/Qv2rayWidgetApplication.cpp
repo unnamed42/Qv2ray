@@ -49,8 +49,8 @@ void Qv2rayWidgetApplication::onMessageReceived(quint32 clientId, QByteArray _ms
         return;
 
     const auto msg = Qv2rayStartupArguments::fromJson(JsonFromString(_msg));
-    LOG("Client ID:", clientId, ", message received, version:", msg.buildVersion);
-    DEBUG(_msg);
+    QVLOG("Client ID:", clientId, ", message received, version:", msg.buildVersion);
+    QVDEBUG(_msg);
     //
     if (msg.buildVersion > QV2RAY_VERSION_BUILD)
     {

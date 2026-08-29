@@ -41,8 +41,8 @@ namespace Qv2ray::core::config
 
             if (!testFile.open(QFile::OpenModeFlag::ReadWrite))
             {
-                LOG("Directory at: " + path + " cannot be used as a valid config file path.");
-                LOG("---> Cannot create a new file or open a file for writing.");
+                QVLOG("Directory at: " + path + " cannot be used as a valid config file path.");
+                QVLOG("---> Cannot create a new file or open a file for writing.");
                 return false;
             }
 
@@ -53,8 +53,8 @@ namespace Qv2ray::core::config
             if (!testFile.remove())
             {
                 // This is rare, as we can create a file but failed to remove it.
-                LOG("Directory at: " + path + " cannot be used as a valid config file path.");
-                LOG("---> Cannot remove a file.");
+                QVLOG("Directory at: " + path + " cannot be used as a valid config file path.");
+                QVLOG("---> Cannot remove a file.");
                 return false;
             }
         }
@@ -74,27 +74,27 @@ namespace Qv2ray::core::config
 
         if (!configFile.open(QIODevice::ReadWrite))
         {
-            LOG("File: " + configFile.fileName() + " cannot be opened!");
+            QVLOG("File: " + configFile.fileName() + " cannot be opened!");
             return false;
         }
 
         const auto err = VerifyJsonString(StringFromFile(configFile));
         if (!err.isEmpty())
         {
-            LOG("Json parse returns:", err);
+            QVLOG("Json parse returns:", err);
             return false;
         }
 
         // If the file format is valid.
         const auto conf = JsonFromString(StringFromFile(configFile));
-        LOG("Found a config file," QVLOG_A(conf["config_version"].toString()) QVLOG_A(path));
+        QVLOG("Found a config file," QVLOG_A(conf["config_version"].toString()) QVLOG_A(path));
         configFile.close();
         return true;
     }
 
     bool LocateConfiguration()
     {
-        LOG("Application exec path: " + qApp->applicationDirPath());
+        QVLOG("Application exec path: " + qApp->applicationDirPath());
         // Non-standard paths needs special handing for "_debug"
         const auto currentPathConfig = qApp->applicationDirPath() + "/config" QV2RAY_CONFIG_DIR_SUFFIX;
         const auto homeQv2ray = QDir::homePath() + "/.qv2ray" QV2RAY_CONFIG_DIR_SUFFIX;
@@ -110,7 +110,7 @@ namespace Qv2ray::core::config
         QStringList configFilePaths;
         if (useManualConfigPath)
         {
-            LOG("Using config path from env: " + manualConfigPath);
+            QVLOG("Using config path from env: " + manualConfigPath);
             configFilePaths << manualConfigPath;
         }
         else
@@ -135,13 +135,13 @@ namespace Qv2ray::core::config
 
             if (isValidConfigPath)
             {
-                DEBUG("Path:", path, " is valid.");
+                QVDEBUG("Path:", path, " is valid.");
                 configPath = path;
                 hasExistingConfig = true;
             }
             else
             {
-                LOG("Path:", path, "does not contain a valid config file.");
+                QVLOG("Path:", path, "does not contain a valid config file.");
             }
         }
 
@@ -149,7 +149,7 @@ namespace Qv2ray::core::config
         {
             // Use the config path found by the checks above
             SetConfigDirPath(configPath);
-            LOG("Using ", QV2RAY_CONFIG_DIR, " as the config path.");
+            QVLOG("Using ", QV2RAY_CONFIG_DIR, " as the config path.");
         }
         else
         {
@@ -175,8 +175,8 @@ namespace Qv2ray::core::config
             {
                 // None of the path above can be used as a dir for storing config.
                 // Even the last folder failed to pass the check.
-                LOG("FATAL");
-                LOG(" ---> CANNOT find a proper place to store Qv2ray config files.");
+                QVLOG("FATAL");
+                QVLOG(" ---> CANNOT find a proper place to store Qv2ray config files.");
                 QvMessageBoxWarn(nullptr, QObject::tr("Cannot Start Qv2ray"),
                                  QObject::tr("Cannot find a place to store config files.") + NEWLINE +                                          //
                                      QObject::tr("Qv2ray has searched these paths below:") + NEWLINE + NEWLINE +                                //
@@ -187,7 +187,7 @@ namespace Qv2ray::core::config
             }
 
             // Found a valid config dir, with write permission, but assume no config is located in it.
-            LOG("Set " + configPath + " as the config path.");
+            QVLOG("Set " + configPath + " as the config path.");
             SetConfigDirPath(configPath);
 
             if (QFile::exists(QV2RAY_CONFIG_FILE))
@@ -201,7 +201,7 @@ namespace Qv2ray::core::config
                 //
                 // Otherwise Qv2ray would have loaded this config already instead of notifying to create a new config in this folder.
                 //
-                LOG("This should not occur: Qv2ray config exists but failed to load.");
+                QVLOG("This should not occur: Qv2ray config exists but failed to load.");
                 QvMessageBoxWarn(nullptr, QObject::tr("Failed to initialise Qv2ray"),
                                  QObject::tr("Failed to determine the location of config file:") + NEWLINE +                                   //
                                      QObject::tr("Qv2ray has found a config file, but it failed to be loaded due to some errors.") + NEWLINE + //
@@ -222,14 +222,14 @@ namespace Qv2ray::core::config
 
             // Save initial config.
             SaveGlobalSettings();
-            LOG("Created initial config file.");
+            QVLOG("Created initial config file.");
         }
 
         if (!QDir(QV2RAY_GENERATED_DIR).exists())
         {
             // The dir used to generate final config file, for V2Ray interaction.
             QDir().mkdir(QV2RAY_GENERATED_DIR);
-            LOG("Created config generation dir at: " + QV2RAY_GENERATED_DIR);
+            QVLOG("Created config generation dir at: " + QV2RAY_GENERATED_DIR);
         }
         //
         // BEGIN LOAD CONFIGURATIONS

@@ -50,13 +50,13 @@ void OutboundNodeModel::setInData(std::vector<std::shared_ptr<NodeData>> indata,
     {
         if (!d)
         {
-            LOG("Invalid inbound nodedata to rule.");
+            QVLOG("Invalid inbound nodedata to rule.");
             continue;
         }
         const auto rule = static_cast<RuleNodeData *>(d.get());
         if (!rule)
         {
-            LOG("Invalid rule nodedata to outbound.");
+            QVLOG("Invalid rule nodedata to outbound.");
             return;
         }
         const auto rulePtr = rule->GetData();
@@ -66,7 +66,7 @@ void OutboundNodeModel::setInData(std::vector<std::shared_ptr<NodeData>> indata,
         else
             rulePtr->outboundTag = dataptr->getDisplayName();
         //
-        DEBUG("Connecting rule:", rulePtr->QV2RAY_RULE_TAG, "to", dataptr->getDisplayName());
+        QVDEBUG("Connecting rule:", rulePtr->QV2RAY_RULE_TAG, "to", dataptr->getDisplayName());
     }
 }
 

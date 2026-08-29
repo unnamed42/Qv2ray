@@ -249,7 +249,7 @@ CONFIGROOT RouteEditor::OpenEditor()
         }
         else
         {
-            LOG("Could not find rule tag:", ruleTag);
+            QVLOG("Could not find rule tag:", ruleTag);
         }
     }
     //
@@ -443,7 +443,7 @@ void RouteEditor::on_defaultOutboundCombo_currentTextChanged(const QString &arg1
     LOADINGCHECK
     if (defaultOutboundTag != arg1)
     {
-        LOG("Default outbound changed:", arg1);
+        QVLOG("Default outbound changed:", arg1);
         defaultOutboundTag = arg1;
     }
 }

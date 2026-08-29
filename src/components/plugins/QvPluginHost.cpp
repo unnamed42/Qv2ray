@@ -22,14 +22,14 @@ namespace Qv2ray::components::plugins
         }
         else
         {
-            LOG("PluginHost initilization skipped by command line option.");
+            QVLOG("PluginHost initilization skipped by command line option.");
         }
     }
 
     int QvPluginHost::refreshPluginList()
     {
         clearPlugins();
-        LOG("Reloading plugin list");
+        QVLOG("Reloading plugin list");
         for (const auto &pluginDirPath : QvCoreApplication->GetAssetsPaths("plugins"))
         {
             const QStringList entries = QDir(pluginDirPath).entryList(QDir::Files);
@@ -37,10 +37,10 @@ namespace Qv2ray::components::plugins
             {
                 if (!fileName.endsWith(QV2RAY_LIBRARY_SUFFIX))
                 {
-                    DEBUG("Skipping: " + fileName + " in: " + pluginDirPath);
+                    QVDEBUG("Skipping: " + fileName + " in: " + pluginDirPath);
                     continue;
                 }
-                DEBUG("Loading plugin: " + fileName + " from: " + pluginDirPath);
+                QVDEBUG("Loading plugin: " + fileName + " from: " + pluginDirPath);
                 //
                 QvPluginInfo info;
                 auto pluginFullPath = QDir(pluginDirPath).absoluteFilePath(fileName);
@@ -52,14 +52,14 @@ namespace Qv2ray::components::plugins
                 if (plugin == nullptr)
                 {
                     const auto errMessage = info.pluginLoader->errorString();
-                    LOG(errMessage);
+                    QVLOG(errMessage);
                     QvMessageBoxWarn(nullptr, tr("Failed to load plugin"), errMessage);
                     continue;
                 }
                 info.pluginInterface = qobject_cast<Qv2rayInterface *>(plugin);
                 if (info.pluginInterface == nullptr)
                 {
-                    LOG("Failed to cast from QObject to Qv2rayPluginInterface");
+                    QVLOG("Failed to cast from QObject to Qv2rayPluginInterface");
                     info.pluginLoader->unload();
                     continue;
                 }
@@ -67,7 +67,7 @@ namespace Qv2ray::components::plugins
                 if (info.pluginInterface->QvPluginInterfaceVersion != QV2RAY_PLUGIN_INTERFACE_VERSION)
                 {
                     // The plugin was built for a not-compactable version of Qv2ray. Don't load the plugin by default.
-                    LOG(info.libraryPath + " is built with an older Interface, ignoring");
+                    QVLOG(info.libraryPath + " is built with an older Interface, ignoring");
                     QvMessageBoxWarn(nullptr, tr("Cannot load plugin"),
                                      tr("The plugin cannot be loaded: ") + NEWLINE + info.libraryPath + NEWLINE NEWLINE +
                                          tr("This plugin was built against a different version of the Plugin Interface.") + NEWLINE +
@@ -78,13 +78,13 @@ namespace Qv2ray::components::plugins
                 info.metadata = info.pluginInterface->GetMetadata();
                 if (plugins.contains(info.metadata.InternalName))
                 {
-                    LOG("Found another plugin with the same internal name: " + info.metadata.InternalName + ". Skipped");
+                    QVLOG("Found another plugin with the same internal name: " + info.metadata.InternalName + ". Skipped");
                     continue;
                 }
                 connect(plugin, SIGNAL(PluginLog(const QString &)), this, SLOT(QvPluginLog(const QString &)));
                 connect(plugin, SIGNAL(PluginErrorMessageBox(const QString &, const QString &)), this,
                         SLOT(QvPluginMessageBox(const QString &, const QString &)));
-                LOG("Loaded plugin: \"" + info.metadata.Name + "\" made by: \"" + info.metadata.Author + "\"");
+                QVLOG("Loaded plugin: \"" + info.metadata.Name + "\" made by: \"" + info.metadata.Author + "\"");
                 plugins.insert(info.metadata.InternalName, info);
             }
         }
@@ -96,11 +96,11 @@ namespace Qv2ray::components::plugins
         auto _sender = sender();
         if (auto _interface = qobject_cast<Qv2rayInterface *>(_sender); _interface)
         {
-            LOG(_interface->GetMetadata().InternalName, log);
+            QVLOG(_interface->GetMetadata().InternalName, log);
         }
         else
         {
-            LOG("UNKNOWN CLIENT: " + log);
+            QVLOG("UNKNOWN CLIENT: " + log);
         }
     }
 
@@ -121,7 +121,7 @@ namespace Qv2ray::components::plugins
 
     void QvPluginHost::SetPluginEnabled(const QString &internalName, bool isEnabled)
     {
-        LOG("Set plugin: \"" + internalName + "\" enable state: " + (isEnabled ? "true" : "false"));
+        QVLOG("Set plugin: \"" + internalName + "\" enable state: " + (isEnabled ? "true" : "false"));
         GlobalConfig.pluginConfig.pluginStates[internalName] = isEnabled;
         if (isEnabled && !plugins[internalName].isLoaded)
         {
@@ -144,7 +144,7 @@ namespace Qv2ray::components::plugins
     {
         for (auto &&plugin : plugins)
         {
-            DEBUG("Unloading: \"" + plugin.metadata.Name + "\"");
+            QVDEBUG("Unloading: \"" + plugin.metadata.Name + "\"");
             plugin.pluginLoader->unload();
             plugin.pluginLoader->deleteLater();
         }
@@ -155,7 +155,7 @@ namespace Qv2ray::components::plugins
         const auto &plugin = plugins[internalName];
         if (plugin.isLoaded)
         {
-            LOG("The plugin: \"" + internalName + "\" has already been loaded.");
+            QVLOG("The plugin: \"" + internalName + "\" has already been loaded.");
             return true;
         }
         if (!GlobalConfig.pluginConfig.pluginStates.contains(internalName))
@@ -166,7 +166,7 @@ namespace Qv2ray::components::plugins
         // If the plugin is disabled
         if (!GlobalConfig.pluginConfig.pluginStates[internalName])
         {
-            LOG("Cannot load a plugin that's been disabled.");
+            QVLOG("Cannot load a plugin that's been disabled.");
             return false;
         }
 
@@ -182,7 +182,7 @@ namespace Qv2ray::components::plugins
         {
             if (plugins[name].isLoaded)
             {
-                LOG("Saving plugin settings for: \"" + name + "\"");
+                QVLOG("Saving plugin settings for: \"" + name + "\"");
                 auto &conf = plugins[name].pluginInterface->GetSettngs();
                 StringToFile(JsonToString(conf), QV2RAY_PLUGIN_SETTINGS_DIR + name + ".conf");
             }

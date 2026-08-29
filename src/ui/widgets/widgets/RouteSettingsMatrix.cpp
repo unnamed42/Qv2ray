@@ -124,11 +124,11 @@ void RouteSettingsMatrixWidget::on_importSchemeBtn_clicked()
         this->SetRouteConfig(static_cast<QvConfig_Route>(scheme));
 
         // done
-        LOG("Imported route config: " + scheme.name + " by: " + scheme.author);
+        QVLOG("Imported route config: " + scheme.name + " by: " + scheme.author);
     }
     catch (std::exception &e)
     {
-        LOG("Exception: ", e.what());
+        QVLOG("Exception: ", e.what());
         // TODO: Give some error as Notification
     }
 }

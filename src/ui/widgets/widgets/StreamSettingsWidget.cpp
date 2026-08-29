@@ -39,7 +39,7 @@ void StreamSettingsWidget::SetStreamObject(const StreamSettingsObject &sso)
         if (securityIndexMap.contains(stream.security))
             securityTypeCB->setCurrentIndex(securityIndexMap[stream.security]);
         else
-            LOG("Unsupported Security Type:", stream.security);
+            QVLOG("Unsupported Security Type:", stream.security);
 
 #define tls_xtls_process(prefix)                                                                                                                     \
     {                                                                                                                                                \
@@ -145,7 +145,7 @@ void StreamSettingsWidget::on_wsHeadersTxt_textChanged()
 
         if (!header.contains("|"))
         {
-            LOG("Header missing '|' separator");
+            QVLOG("Header missing '|' separator");
             RED(wsHeadersTxt);
             return;
         }

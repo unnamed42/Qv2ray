@@ -59,7 +59,7 @@ namespace Qv2ray::core::connection::generation::inbounds
                                  const QJsonObject &sniffing, const QJsonObject &allocate)
     {
         INBOUND root;
-        DEBUG("Allocation is not used here, Not Implemented");
+        QVDEBUG("Allocation is not used here, Not Implemented");
         Q_UNUSED(allocate)
         JADD(listen, port, protocol, settings, tag, sniffing)
         return root;
@@ -135,7 +135,7 @@ namespace Qv2ray::core::connection::generation::inbounds
                                                                      INCONF.tProxySettings.destOverride);
             // tProxy IPv4 Settings
             {
-                LOG("Processing tProxy IPv4 inbound");
+                QVLOG("Processing tProxy IPv4 inbound");
                 auto tProxyIn = GenerateInboundEntry("tproxy_IN", "dokodemo-door",   //
                                                      INCONF.tProxySettings.tProxyIP, //
                                                      INCONF.tProxySettings.port,     //
@@ -146,7 +146,7 @@ namespace Qv2ray::core::connection::generation::inbounds
             }
             if (!INCONF.tProxySettings.tProxyV6IP.isEmpty())
             {
-                LOG("Processing tProxy IPv6 inbound");
+                QVLOG("Processing tProxy IPv6 inbound");
                 auto tProxyIn = GenerateInboundEntry("tproxy_IN_V6", "dokodemo-door",  //
                                                      INCONF.tProxySettings.tProxyV6IP, //
                                                      INCONF.tProxySettings.port,       //

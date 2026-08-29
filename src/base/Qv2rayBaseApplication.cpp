@@ -14,18 +14,18 @@ Qv2rayApplicationInterface::Qv2rayApplicationInterface()
 {
     ConfigObject = new Qv2rayConfigObject;
     QvCoreApplication = this;
-    LOG("Qv2ray", QV2RAY_VERSION_STRING, "on", QSysInfo::prettyProductName(), QSysInfo::currentCpuArchitecture());
-    DEBUG("Qv2ray Start Time: ", QTime::currentTime().msecsSinceStartOfDay());
-    DEBUG("QV2RAY_BUILD_INFO", QV2RAY_BUILD_INFO);
-    DEBUG("QV2RAY_BUILD_EXTRA_INFO", QV2RAY_BUILD_EXTRA_INFO);
-    DEBUG("QV2RAY_BUILD_NUMBER", QSTRN(QV2RAY_VERSION_BUILD));
+    QVLOG("Qv2ray", QV2RAY_VERSION_STRING, "on", QSysInfo::prettyProductName(), QSysInfo::currentCpuArchitecture());
+    QVDEBUG("Qv2ray Start Time: ", QTime::currentTime().msecsSinceStartOfDay());
+    QVDEBUG("QV2RAY_BUILD_INFO", QV2RAY_BUILD_INFO);
+    QVDEBUG("QV2RAY_BUILD_EXTRA_INFO", QV2RAY_BUILD_EXTRA_INFO);
+    QVDEBUG("QV2RAY_BUILD_NUMBER", QSTRN(QV2RAY_VERSION_BUILD));
     QStringList licenseList;
     licenseList << "This program comes with ABSOLUTELY NO WARRANTY.";
     licenseList << "This is free software, and you are welcome to redistribute it";
     licenseList << "under certain conditions.";
     licenseList << "Copyright (c) 2019-2021 Qv2ray Development Group.";
     licenseList << "Third-party libraries that have been used in this program can be found in the About page.";
-    LOG(licenseList.join(NEWLINE));
+    QVLOG(licenseList.join(NEWLINE));
 }
 
 Qv2rayApplicationInterface::~Qv2rayApplicationInterface()

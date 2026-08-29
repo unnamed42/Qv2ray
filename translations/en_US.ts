@@ -2059,6 +2059,10 @@ This option may be useful for some desktop environments without tray support.</s
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>ICMP ping only supports IPv4 addresses</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Destination unreachable</source>
         <translation type="unfinished"></translation>
     </message>
