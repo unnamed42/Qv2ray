@@ -27,7 +27,7 @@ jobs:
     strategy:
       matrix:
         ui_type: [QWidget]
-        platform: [ubuntu-20.04, windows-latest]
+        platform: [ubuntu-20.04, macos-latest, windows-latest]
         build_type: [RelWithDebInfo, Release]
         qt_version: [6.5.0]
         include:
@@ -217,7 +217,7 @@ jobs:
           path: Qv2ray.dmg
       - name: macOS - ${{ matrix.qt_version }} - Upload binaries to release
         uses: svenstaro/upload-release-action@v1-release
-        if: github.event_name == 'release' && matrix.platform == 'macos-latest' && matrix.ui_type == 'QWidget' && matrix.qt_version == '6.0.0' && matrix.build_type == 'Release'
+        if: github.event_name == 'release' && matrix.platform == 'macos-latest' && matrix.ui_type == 'QWidget' && matrix.qt_version == '6.5.0' && matrix.build_type == 'Release'
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: Qv2ray.dmg
@@ -239,7 +239,7 @@ jobs:
           path: release.7z
       - name: Win - ${{ matrix.qt_version }} - Upload binaries to release
         uses: svenstaro/upload-release-action@v1-release
-        if: github.event_name == 'release' && matrix.platform == 'windows-latest' && matrix.ui_type == 'QWidget' && matrix.qt_version == '6.0.0' && matrix.build_type == 'Release'
+        if: github.event_name == 'release' && matrix.platform == 'windows-latest' && matrix.ui_type == 'QWidget' && matrix.qt_version == '6.5.0' && matrix.build_type == 'Release'
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: release.7z

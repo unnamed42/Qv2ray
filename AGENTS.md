@@ -32,7 +32,7 @@ cmake --build .
 ctest                       # or: ctest -R parse_ss_url for one test
 ```
 
-- Build options live in `CMakeLists.txt`: `QV2RAY_UI_TYPE` (`QWidget`/`QML`/`CLI`), `QV2RAY_QT6`, `BUILD_TESTING`, `QV2RAY_HAS_BUILTIN_PLUGINS`, `QV2RAY_DISABLE_AUTO_UPDATE`, `QV2RAY_USE_V5_CORE`.
+- Build options live in `CMakeLists.txt`: `QV2RAY_UI_TYPE` (`QWidget`/`QML`/`CLI`), `BUILD_TESTING`, `QV2RAY_HAS_BUILTIN_PLUGINS`, `QV2RAY_DISABLE_AUTO_UPDATE`, `QV2RAY_USE_V5_CORE`. Qt6 is the **only** supported Qt major version (Qt5 support has been removed).
 - Windows: run `libs/setup-libs.sh <DEPS_OS> <DEPS_CATEGORY>` (downloads prebuilt deps; e.g. `win64 msvc` / `win64 tools`). Requires curl and jq.
 - Building just the isolated gRPC backend: `ninja backend_api` (produces `libbackend_api.so`). Expected for a normal full build too.
 
@@ -61,7 +61,7 @@ ctest                       # or: ctest -R parse_ss_url for one test
 
 ## Conventions
 
-- CI commit-message directives: a commit containing `!QT5`, `!QT6`, `!DEB`, or `!NSIS` skips the matching workflow job. The `l10n_dev` branch skips all CI (`branches-ignore`).
+- CI commit-message directives: a commit containing `!QT6`, `!DEB`, or `!NSIS` skips the matching workflow job. The `l10n_dev` branch skips all CI (`branches-ignore`).
 - Code style (`src/.clang-format`-driven): Microsoft style, Allman braces, column limit 150, 4-space indent. Functions/classes use UpperCamelCase; namespaces lowercase (except `Qv2ray`). Run `clang-format` before committing.
 - Header files use `.hpp`. Avoid editing `.ui` / `.qrc` files by hand when a tool generates them.
 - `hooks/pre-commit` (standalone bash script, not the pre-commit framework) auto-increments `makespec/BUILDVERSION` (currently 7002) when staged files touch it. It only runs if you install it.
@@ -69,7 +69,7 @@ ctest                       # or: ctest -R parse_ss_url for one test
 ## Pitfalls
 
 - Don't edit generated resources (`*.ui`, `resources.new.qrc` vs `resources.qrc`) manually; keep changes with their generator.
-- `QV2RAY_QT6` default is `ON` in current `CMakeLists.txt`; Android and QML builds force it ON regardless. MSVC downgrades the language standard to `/std:c++17`.
+- Qt6 is the **only** supported Qt major version (Qt5 support was removed). `QV2RAY_QT6` is no longer a build toggle; the CMake always uses `Qt6` / `qt6_add_executable`, and the Qt5 CI workflow (`build-qv2ray-cmake.yml`) and `azure-pipelines.yml` have been deleted. The sole build workflow is `build-qv2ray-qt6.yml`. MSVC downgrades the language standard to `/std:c++17`.
 - Version is split across `makespec/VERSION` (2.7.1) / `VERSIONSUFFIX` / `BUILDVERSION`; the pre-commit bump only triggers when the working tree is otherwise staged — don't bump it by hand.
 - Do not assume the plugin interface twice: `src/plugins` (builtin plugins) and `src/plugin-interface` (submodule ABI) are distinct.
 - `QJsonIO::SetValue` (in `3rdparty/QJsonStruct/QJsonIO.hpp`) with a `QJsonIOPath` that contains an array index (e.g. `{ "settings", "vnext", 0, "address" }`) used to crash with `SIGSEGV` in Qt6 when building up from an empty object (indexing an out-of-range array is UB in Qt6's `QJsonValueRef::toValue()`; Qt5 tolerated it). The build-up loop now grows the array to fit the index before taking the reference — keep this behavior if ever touching that file. **Note:** this fix is currently an *uncommitted* change inside the `3rdparty/QJsonStruct` submodule (it will be overwritten by a `git submodule update`).

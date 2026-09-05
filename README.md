@@ -29,7 +29,6 @@ gcc 写于 8 月 17 日
 [![Snap Status](https://img.shields.io/travis/com/Qv2ray/Qv2ray?label=snapcraft-travis&logo=github)](https://travis-ci.com/Qv2ray/Qv2ray)
 [![Qv2ray build debian package](https://github.com/Qv2ray/Qv2ray/actions/workflows/deb.yml/badge.svg)](https://github.com/Qv2ray/Qv2ray/actions/workflows/deb.yml)
 [![Qv2ray Windows Installer](https://github.com/Qv2ray/Qv2ray/actions/workflows/nsis.yml/badge.svg)](https://github.com/Qv2ray/Qv2ray/actions/workflows/nsis.yml)
-[![Qv2ray build matrix - cmake](https://github.com/Qv2ray/Qv2ray/actions/workflows/build-qv2ray-cmake.yml/badge.svg)](https://github.com/Qv2ray/Qv2ray/actions/workflows/build-qv2ray-cmake.yml)
 [![Qv2ray build matrix - Qt6](https://github.com/Qv2ray/Qv2ray/actions/workflows/build-qv2ray-qt6.yml/badge.svg)](https://github.com/Qv2ray/Qv2ray/actions/workflows/build-qv2ray-qt6.yml)
 
 <table>
