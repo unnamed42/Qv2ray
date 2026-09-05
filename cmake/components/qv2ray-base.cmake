@@ -92,8 +92,9 @@ set(QV2RAY_BASE_SOURCES
     ${QV2RAY_BASEDIR_CORE}/handler/RouteHandler.cpp
     ${QV2RAY_BASEDIR_CORE}/handler/RouteHandler.hpp
     #
-    ${QV2RAY_BASEDIR_CORE}/kernel/APIBackend.cpp
-    ${QV2RAY_BASEDIR_CORE}/kernel/APIBackend.hpp
+    ${QV2RAY_BASEDIR_CORE}/kernel/APIBackendInterface.hpp
+    ${QV2RAY_BASEDIR_CORE}/kernel/APIBackendLoader.cpp
+    ${QV2RAY_BASEDIR_CORE}/kernel/APIBackendLoader.hpp
     ${QV2RAY_BASEDIR_CORE}/kernel/QvKernelABIChecker.cpp
     ${QV2RAY_BASEDIR_CORE}/kernel/QvKernelABIChecker.hpp
     ${QV2RAY_BASEDIR_CORE}/kernel/V2RayKernelInteractions.cpp

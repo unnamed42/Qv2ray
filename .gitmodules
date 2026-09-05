@@ -22,3 +22,6 @@
 [submodule "3rdparty/qt-qrcode"]
 	path = 3rdparty/qt-qrcode
 	url = https://github.com/danielsanfr/qt-qrcode
+[submodule "3rdparty/protozero"]
+	path = 3rdparty/protozero
+	url = https://github.com/mapbox/protozero

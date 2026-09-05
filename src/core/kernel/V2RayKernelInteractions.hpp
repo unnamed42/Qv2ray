@@ -6,7 +6,7 @@ class QProcess;
 
 namespace Qv2ray::core::kernel
 {
-    class APIWorker;
+    class IAPIWorker;
     class V2RayKernelInstance : public QObject
     {
         Q_OBJECT
@@ -33,7 +33,7 @@ namespace Qv2ray::core::kernel
         void OnNewStatsDataArrived(const QMap<StatisticsType, QvStatsSpeed> &data);
 
       private:
-        APIWorker *apiWorker;
+        IAPIWorker *apiWorker = nullptr;
         QProcess *vProcess;
         bool apiEnabled;
         bool kernelStarted = false;

@@ -1,6 +1,6 @@
 #include "V2RayKernelInteractions.hpp"
 
-#include "APIBackend.hpp"
+#include "core/kernel/APIBackendLoader.hpp"
 #include "core/connection/ConnectionIO.hpp"
 #include "utils/QvHelpers.hpp"
 
@@ -215,10 +215,9 @@ namespace Qv2ray::core::kernel
                 emit OnProcessErrored("V2Ray kernel crashed.");
             }
         });
-        apiWorker = new APIWorker();
+        apiWorker = nullptr;
         qRegisterMetaType<StatisticsType>();
         qRegisterMetaType<QMap<StatisticsType, QvStatsSpeed>>();
-        connect(apiWorker, &APIWorker::onAPIDataReady, this, &V2RayKernelInstance::OnNewStatsDataArrived);
         kernelStarted = false;
     }
 
@@ -281,8 +280,36 @@ namespace Qv2ray::core::kernel
         else
         {
             QVDEBUG("Starting API");
-            apiWorker->StartAPI(tagProtocolMap);
-            apiEnabled = true;
+            // Lazy-load the gRPC-backed backend library. When the backend is
+            // unavailable (library missing, grpc/absl incompatible, etc.) we
+            // degrade gracefully: connection keeps working, just without
+            // live traffic statistics. This keeps the main executable from
+            // ever requiring grpc/absl to be present just to start up.
+            if (!apiWorker)
+            {
+                apiWorker = LoadAPIWorker(GlobalConfig.kernelConfig.statsPort, this);
+                if (apiWorker)
+                {
+                    connect(apiWorker, &IAPIWorker::onAPIDataReady, this, &V2RayKernelInstance::OnNewStatsDataArrived);
+                    QVDEBUG("gRPC stats backend loaded.");
+                }
+                else
+                {
+                    const auto err = LastAPIWorkerLoadError();
+                    QVLOG("Failed to load gRPC stats backend, traffic statistics will be disabled. "
+                          + (err.isEmpty() ? QString("") : (": " + err)));
+                }
+            }
+            if (apiWorker)
+            {
+                apiWorker->StartAPI(tagProtocolMap);
+                apiEnabled = true;
+            }
+            else
+            {
+                // Stats feature unavailable; do not enable the API flag.
+                apiEnabled = false;
+            }
         }
 
         return std::nullopt;

@@ -309,15 +309,10 @@ add_library(qv2ray_baselib STATIC
     ${SINGLEAPPLICATION_SOURCES}
     ${QVPLUGIN_INTERFACE_HEADERS}
     ${LIBSEMVER_SOURCES}
-    ${PROTO_SRCS}
-    ${PROTO_HDRS}
-    ${API_GRPC_SRCS}
-    ${API_PROTO_SRCS}
     )
 
 target_link_libraries(qv2ray_baselib
     ${QV2RAY_QT_LIBS}
-    ${QV2RAY_BACKEND_LIBRARY}
     ${SINGLEAPPLICATION_LIBRARY}
     Threads::Threads
     )
@@ -328,13 +323,62 @@ target_include_directories(qv2ray_baselib PUBLIC
     ${SINGLEAPPLICATION_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/src
-    ${Protobuf_INCLUDE_DIRS}
+    ${CMAKE_SOURCE_DIR}/3rdparty/protozero/include
     )
 
 if(QV2RAY_USE_V5_CORE)
     message("-- Use V2Ray Core V5")
     target_compile_definitions(qv2ray_baselib PUBLIC QV2RAY_USE_V5_CORE)
 endif()
+
+# ==================================================================================
+# gRPC Backend (isolated ABI). The ONLY target that links grpc/absl.
+# ==================================================================================
+# grpc/absl (and the v2ray_api gRPC generated code) are intentionally confined to
+# this shared library so that the main executable neither links nor dlopens them
+# at startup. The main program loads it on demand via QLibrary (see
+# APIBackendLoader) only when the traffic-stats API is enabled. Upgrading grpc/absl
+# therefore only requires rebuilding this small library, never the whole program.
+add_library(backend_api SHARED
+    ${QV2RAY_BASEDIR_CORE}/kernel/APIBackendImpl.cpp
+    ${QV2RAY_BASEDIR_CORE}/kernel/APIBackendImpl.hpp
+    ${API_GRPC_SRCS}
+    ${API_PROTO_SRCS}
+    )
+
+target_include_directories(backend_api PRIVATE
+    ${CMAKE_BINARY_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
+    ${Protobuf_INCLUDE_DIRS}
+    )
+
+target_link_libraries(backend_api
+    ${QV2RAY_QT_LIBS}
+    ${QV2RAY_BACKEND_LIBRARY}
+    Threads::Threads
+    )
+
+if(QV2RAY_USE_V5_CORE)
+    target_compile_definitions(backend_api PRIVATE QV2RAY_USE_V5_CORE)
+endif()
+
+# Install the isolated gRPC backend into a dedicated `libs` directory so it ships
+# in packaged installs and the on-demand loader (APIBackendLoader) can find it.
+# Deliberately NOT under `plugins/`, which the plugin host scans and would try to
+# load as a plugin (causing a startup error dialog for this non-plugin library).
+if(UNIX AND NOT APPLE AND NOT WIN32 AND NOT ANDROID)
+    install(TARGETS backend_api LIBRARY DESTINATION share/qv2ray/libs)
+elseif(WIN32)
+    install(TARGETS backend_api RUNTIME DESTINATION libs LIBRARY DESTINATION libs)
+elseif(APPLE)
+    install(TARGETS backend_api LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/qv2ray.app/Contents/Resources/libs)
+elseif(ANDROID)
+    install(TARGETS backend_api LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
+endif()
+
+# Keep the ABI-stable Qt facade header reachable by the main program.
+target_include_directories(qv2ray_baselib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 # ==================================================================================
 # Qv2ray Builtin Plugins
@@ -413,6 +457,14 @@ endif()
 
 # set_target_properties(MAIN PROPERTIES OUTPUT_NAME "qv2ray")
 
+# Export the executable's global symbols so the dlopen'ed `backend_api` shared
+# library can resolve shared C++ RTTI/typeinfo and Qt metatypes (QvStatsSpeed,
+# StatisticsType, IAPIWorker vtable) from the main binary. Required for the
+# gRPC ABI-isolation dynamic-loading architecture on ELF/mach-O platforms.
+if(UNIX)
+    set_target_properties(qv2ray PROPERTIES LINK_FLAGS "-rdynamic")
+endif()
+
 if(ANDROID)
     qvlog(ANDROID_EXTRA_LIBS)
     set_property(TARGET qv2ray PROPERTY QT_ANDROID_EXTRA_LIBS ${ANDROID_EXTRA_LIBS})
@@ -424,7 +476,6 @@ target_include_directories(qv2ray PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src
     ${CMAKE_BINARY_DIR}
     ${QNODEEDITOR_INCLUDE_PATH}
-    ${Protobuf_INCLUDE_DIRS}
     )
 
 target_link_libraries(qv2ray PUBLIC

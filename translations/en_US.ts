@@ -2386,6 +2386,18 @@ This option may be useful for some desktop environments without tray support.</s
         <source>missing uuid</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>gRPC stats backend library (%1) not found next to the application or in its lib dirs.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Backend library lacks factory symbol: </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Backend factory returned null.</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>Qv2ray::Qv2rayWidgetApplication</name>
@@ -2528,13 +2540,6 @@ This option may be useful for some desktop environments without tray support.</s
     </message>
     <message>
         <source>A subscription plugin is missing?</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>Qv2ray::core::kernel::APIWorker</name>
-    <message>
-        <source>Failed to get statistics data, please check if V2Ray is running properly</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

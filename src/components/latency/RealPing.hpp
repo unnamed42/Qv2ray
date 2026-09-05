@@ -26,6 +26,11 @@ namespace Qv2ray::components::latency::realping
         void setOnFinished(std::function<void()> f);
         void start();
 
+        /// Build the proxy URL (e.g. `http://usr:pp@127.0.0.1:9090`) from the
+        /// current GlobalConfig inbound settings. Extracted as a pure helper so
+        /// the address-formatting logic can be unit-tested.
+        static QString getProxyAddress();
+
       private:
         void checkCompleted();
 

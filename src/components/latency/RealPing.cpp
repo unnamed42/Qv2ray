@@ -24,6 +24,46 @@ namespace Qv2ray::components::latency::realping
         onFinished = std::move(f);
     }
 
+    QString RealPing::getProxyAddress()
+    {
+        // Normalize a wildcard listen address to the loopback address the proxy
+        // actually binds to.
+        const QString rawListen = GlobalConfig.inboundConfig.listenip;
+        QString listenHost = rawListen;
+        if (rawListen == "0.0.0.0")
+            listenHost = "127.0.0.1";
+        else if (rawListen == "::")
+            listenHost = "::1";
+
+        QString scheme;
+        QString userInfo;
+        int port = 0;
+        if (GlobalConfig.inboundConfig.useHTTP)
+        {
+            scheme = "http";
+            port = GlobalConfig.inboundConfig.httpSettings.port;
+            const auto &auth = GlobalConfig.inboundConfig.httpSettings;
+            if (auth.useAuth)
+                userInfo = auth.account.user + ":" + auth.account.pass + "@";
+        }
+        else if (GlobalConfig.inboundConfig.useSocks)
+        {
+            scheme = "socks5";
+            port = GlobalConfig.inboundConfig.socksSettings.port;
+            const auto &auth = GlobalConfig.inboundConfig.socksSettings;
+            if (auth.useAuth)
+                userInfo = auth.account.user + ":" + auth.account.pass + "@";
+        }
+        else
+        {
+            return {};
+        }
+
+        // IPv6 addresses must be bracketed in a URI authority.
+        const QString host = listenHost.contains(':') ? "[" + listenHost + "]" : listenHost;
+        return scheme + "://" + userInfo + host + ":" + QString::number(port);
+    }
+
     void RealPing::start()
     {
         if (!GlobalConfig.inboundConfig.useSocks && !GlobalConfig.inboundConfig.useHTTP)
@@ -37,34 +77,16 @@ namespace Qv2ray::components::latency::realping
             return;
         }
 
-        // Build the proxy for the local Qv2ray inbound.
+        // Build the proxy for the local Qv2ray inbound from the same address logic.
+        const QUrl proxyUrl{ getProxyAddress() };
         QNetworkProxy proxy;
-        QString listenHost = GlobalConfig.inboundConfig.listenip;
-        if (GlobalConfig.inboundConfig.useHTTP)
+        proxy.setType(GlobalConfig.inboundConfig.useHTTP ? QNetworkProxy::HttpProxy : QNetworkProxy::Socks5Proxy);
+        proxy.setHostName(proxyUrl.host());
+        proxy.setPort(proxyUrl.port());
+        if (!proxyUrl.userInfo().isEmpty())
         {
-            proxy.setType(QNetworkProxy::HttpProxy);
-            if (listenHost == "0.0.0.0" || listenHost == "::")
-                listenHost = (listenHost == "::") ? "::1" : "127.0.0.1";
-            proxy.setHostName(listenHost);
-            proxy.setPort(GlobalConfig.inboundConfig.httpSettings.port);
-            if (GlobalConfig.inboundConfig.httpSettings.useAuth)
-            {
-                proxy.setUser(GlobalConfig.inboundConfig.httpSettings.account.user);
-                proxy.setPassword(GlobalConfig.inboundConfig.httpSettings.account.pass);
-            }
-        }
-        else if (GlobalConfig.inboundConfig.useSocks)
-        {
-            proxy.setType(QNetworkProxy::Socks5Proxy);
-            if (listenHost == "0.0.0.0" || listenHost == "::")
-                listenHost = (listenHost == "::") ? "::1" : "127.0.0.1";
-            proxy.setHostName(listenHost);
-            proxy.setPort(GlobalConfig.inboundConfig.socksSettings.port);
-            if (GlobalConfig.inboundConfig.socksSettings.useAuth)
-            {
-                proxy.setUser(GlobalConfig.inboundConfig.socksSettings.account.user);
-                proxy.setPassword(GlobalConfig.inboundConfig.socksSettings.account.pass);
-            }
+            proxy.setUser(proxyUrl.userName());
+            proxy.setPassword(proxyUrl.password());
         }
 
         data.totalCount = 0;
